@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.routers.actions import router as actions_router
 from backend.routers.attributes import router as attributes_router
 from backend.routers.characters import router as characters_router
 from backend.routers.checks import router as checks_router
@@ -25,6 +26,7 @@ app.include_router(attributes_router)
 app.include_router(resources_router)
 app.include_router(combat_router)
 app.include_router(checks_router)
+app.include_router(actions_router)
 
 
 @app.get("/health")

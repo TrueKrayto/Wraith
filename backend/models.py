@@ -126,3 +126,4 @@ class CharacterResource(Base):
         nullable=False,
         default=100,
     )
+
