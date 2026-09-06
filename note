@@ -1,0 +1,5 @@
+to activate venv
+ source backend/.venv/Scripts/activate
+
+to activate uvicron
+    uvicorn backend.main:app --reload
