@@ -6,6 +6,9 @@ class CharacterCreate(BaseModel):
     role: str
     level: int = 1
 
+class CharacterUpdate(BaseModel):
+    name: str | None = None
+    role: str | None = None
 
 class CharacterRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -126,6 +129,10 @@ class OngoingEffectProposal(BaseModel):
     resource_name: str | None = None
     tick_interval: int = 1
 
+class ImmediateResourceEffectProposal(BaseModel):
+    target_character_id: int
+    resource_name: str
+    amount: int
 
 class ActionCheckProposal(BaseModel):
     check_id: str
@@ -146,6 +153,12 @@ class ActionCheckProposal(BaseModel):
     called_shot: bool = False
 
     proposed_base_damage: int = 0
+
+    immediate_resource_effects: list[
+        ImmediateResourceEffectProposal
+    ] = Field(
+        default_factory=list
+    )
 
     requires_success_of: list[str] = Field(
         default_factory=list
@@ -168,3 +181,7 @@ class ActionProposal(BaseModel):
     ongoing_effects: list[OngoingEffectProposal] = Field(
         default_factory=list
     )
+
+class PlayerActionRequest(BaseModel):
+    actor_character_id: int
+    action_text: str

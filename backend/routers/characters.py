@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend import models, schemas
@@ -29,8 +29,6 @@ def create_character(
     )
 
     db.add(new_character)
-
-    # Assign an ID before creating related rows.
     db.flush()
 
     for name, skill_level in default_skills().items():
@@ -72,3 +70,33 @@ def get_characters(
     db: Session = Depends(get_db),
 ):
     return db.query(models.Character).all()
+
+
+@router.patch("/{character_id}", response_model=schemas.CharacterRead)
+def update_character(
+    character_id: int,
+    character_update: schemas.CharacterUpdate,
+    db: Session = Depends(get_db),
+):
+    character = (
+        db.query(models.Character)
+        .filter(models.Character.id == character_id)
+        .first()
+    )
+
+    if character is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Character not found",
+        )
+
+    if character_update.name is not None:
+        character.name = character_update.name
+
+    if character_update.role is not None:
+        character.role = character_update.role
+
+    db.commit()
+    db.refresh(character)
+
+    return character

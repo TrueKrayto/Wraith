@@ -12,6 +12,7 @@ from backend.services.checks import (
 )
 from backend.services.resources import (
     change_resource,
+    get_resource,
     spend_resource,
 )
 from backend.services.stats import (
@@ -33,6 +34,11 @@ def execute_action(
 
     proposal = validate_action_proposal(proposal)
 
+    actor = get_character(
+        db=db,
+        character_id=proposal.actor_character_id,
+    )
+
     resource_remaining = None
 
     if proposal.resource_name is not None and proposal.resource_cost > 0:
@@ -49,6 +55,14 @@ def execute_action(
     check_results: list[dict] = []
 
     for check in proposal.checks:
+        target = None
+
+        if check.target_character_id is not None:
+            target = get_character(
+                db=db,
+                character_id=check.target_character_id,
+            )
+
         dependencies_succeeded = all(
             results_by_id[required_id]["success"]
             for required_id in check.requires_success_of
@@ -62,7 +76,13 @@ def execute_action(
                 "success": False,
                 "reason": "Required earlier check failed.",
                 "damage": 0,
+                "resource_effects": [],
             }
+
+            if target is not None:
+                result["target_character_id"] = target.id
+                result["target_name"] = target.name
+                result["target_role"] = target.role
 
             results_by_id[check.check_id] = result
             check_results.append(result)
@@ -121,52 +141,79 @@ def execute_action(
 
         damage = 0
         target_health = None
+        resource_effect_results = []
 
-        if (
-            mechanical_result["success"]
-            and check.proposed_base_damage > 0
-        ):
-            if check.target_character_id is None:
-                raise ValueError(
-                    f"Check '{check.check_id}' proposes damage "
-                    f"but has no target character."
-                )
+        if mechanical_result["success"]:
+            if check.proposed_base_damage > 0:
+                if target is None:
+                    raise ValueError(
+                        f"Check '{check.check_id}' proposes damage "
+                        f"but has no target character."
+                    )
 
-            actor = get_character(
-                db=db,
-                character_id=proposal.actor_character_id,
-            )
-
-            core_skill = get_skill_level(
-                db=db,
-                character_id=proposal.actor_character_id,
-                skill_name=check.core_skill_name,
-            )
-
-            specialization = 0
-
-            if check.specialization_name is not None:
-                specialization = get_skill_level(
+                core_skill = get_skill_level(
                     db=db,
                     character_id=proposal.actor_character_id,
-                    skill_name=check.specialization_name,
+                    skill_name=check.core_skill_name,
                 )
 
-            damage = calculate_damage(
-                base_damage=check.proposed_base_damage,
-                character_level=actor.level,
-                core_skill=core_skill,
-                specialization=specialization,
-            )
+                specialization = 0
 
-            health = change_resource(
-                db=db,
-                character_id=check.target_character_id,
-                resource_name="health",
-                amount=-damage,
-            )
+                if check.specialization_name is not None:
+                    specialization = get_skill_level(
+                        db=db,
+                        character_id=proposal.actor_character_id,
+                        skill_name=check.specialization_name,
+                    )
 
-            target_health = health.current
+                damage = calculate_damage(
+                    base_damage=check.proposed_base_damage,
+                    character_level=actor.level,
+                    core_skill=core_skill,
+                    specialization=specialization,
+                )
+
+                health = change_resource(
+                    db=db,
+                    character_id=target.id,
+                    resource_name="health",
+                    amount=-damage,
+                )
+
+                target_health = health.current
+
+            for effect in check.immediate_resource_effects:
+                effect_target = get_character(
+                    db=db,
+                    character_id=effect.target_character_id,
+                )
+
+                resource = get_resource(
+                    db=db,
+                    character_id=effect.target_character_id,
+                    resource_name=effect.resource_name,
+                )
+
+                before = resource.current
+
+                updated_resource = change_resource(
+                    db=db,
+                    character_id=effect.target_character_id,
+                    resource_name=effect.resource_name,
+                    amount=effect.amount,
+                )
+
+                resource_effect_results.append(
+                    {
+                        "target_character_id": effect_target.id,
+                        "target_name": effect_target.name,
+                        "target_role": effect_target.role,
+                        "resource_name": effect.resource_name,
+                        "amount": effect.amount,
+                        "before": before,
+                        "after": updated_resource.current,
+                    }
+                )
 
         result = {
             "check_id": check.check_id,
@@ -174,7 +221,13 @@ def execute_action(
             "skipped": False,
             **mechanical_result,
             "damage": damage,
+            "resource_effects": resource_effect_results,
         }
+
+        if target is not None:
+            result["target_character_id"] = target.id
+            result["target_name"] = target.name
+            result["target_role"] = target.role
 
         if target_health is not None:
             result["target_health"] = target_health
@@ -184,7 +237,9 @@ def execute_action(
 
     return {
         "description": proposal.description,
-        "actor_character_id": proposal.actor_character_id,
+        "actor_character_id": actor.id,
+        "actor_name": actor.name,
+        "actor_role": actor.role,
         "resource_name": proposal.resource_name,
         "resource_cost": proposal.resource_cost,
         "resource_remaining": resource_remaining,

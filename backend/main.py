@@ -6,6 +6,7 @@ from backend.routers.attributes import router as attributes_router
 from backend.routers.characters import router as characters_router
 from backend.routers.checks import router as checks_router
 from backend.routers.combat import router as combat_router
+from backend.routers.play import router as play_router
 from backend.routers.resources import router as resources_router
 from backend.routers.skills import router as skills_router
 
@@ -27,6 +28,7 @@ app.include_router(resources_router)
 app.include_router(combat_router)
 app.include_router(checks_router)
 app.include_router(actions_router)
+app.include_router(play_router)
 
 
 @app.get("/health")
