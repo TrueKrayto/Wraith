@@ -1,0 +1,71 @@
+:root {
+  /* =========================
+     Main surfaces
+  ========================= */
+
+  --color-background: #111318;
+  --color-surface: #181b22;
+  --color-surface-raised: #20242d;
+  --color-surface-hover: #292e39;
+
+
+  /* =========================
+     Borders
+  ========================= */
+
+  --color-border: #343a46;
+  --color-border-strong: #4b5362;
+
+
+  /* =========================
+     Text
+  ========================= */
+
+  --color-text: #e8e8ea;
+  --color-text-muted: #9da3ae;
+  --color-text-disabled: #666d78;
+
+
+  /* =========================
+     Accent
+  ========================= */
+
+  --color-accent: #8b7cf6;
+  --color-accent-hover: #a094ff;
+  --color-accent-text: #ffffff;
+
+
+  /* =========================
+     State colours
+  ========================= */
+
+  --color-success: #66b884;
+  --color-warning: #d6aa5d;
+  --color-danger: #c96767;
+
+
+  /* =========================
+     Character resources
+  ========================= */
+
+  --color-health: #b85252;
+  --color-mana: #557fc1;
+  --color-stamina: #6d9c61;
+
+
+  /* =========================
+     Input
+  ========================= */
+
+  --color-input-background: #14171d;
+  --color-input-border: #3b414d;
+  --color-input-focus: #8b7cf6;
+
+
+  /* =========================
+     Debug
+  ========================= */
+
+  --color-debug-background: #0c0e12;
+  --color-debug-text: #b8bdc7;
+}

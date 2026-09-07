@@ -1,0 +1,94 @@
+.character-panel {
+  padding: 1rem;
+}
+
+
+.character-panel h2 {
+  margin: 0 0 0.75rem;
+}
+
+
+.character-panel select {
+  width: 100%;
+  padding: 0.5rem;
+
+  border: 1px solid var(--color-input-border);
+  border-radius: 4px;
+
+  background: var(--color-input-background);
+  color: var(--color-text);
+}
+
+
+.character-panel__identity {
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+
+.character-panel__identity h3 {
+  margin: 0 0 0.25rem;
+}
+
+
+.character-panel__identity p {
+  margin: 0.2rem 0;
+
+  color: var(--color-text-muted);
+}
+
+
+.character-panel__resources {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+
+  margin-top: 1rem;
+}
+
+
+.resource__label {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 0.3rem;
+
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+
+.resource__track {
+  width: 100%;
+  height: 10px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: var(--color-surface-raised);
+}
+
+
+.resource__fill {
+  height: 100%;
+
+  transition: width 0.2s ease;
+}
+
+
+.resource--health .resource__fill {
+  background: var(--color-health);
+}
+
+
+.resource--mana .resource__fill {
+  background: var(--color-mana);
+}
+
+
+.resource--stamina .resource__fill {
+  background: var(--color-stamina);
+}

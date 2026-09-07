@@ -1,0 +1,46 @@
+.scene-characters {
+  padding: 0.75rem 1rem;
+}
+
+
+.scene-characters h2 {
+  margin: 0 0 0.6rem;
+
+  font-size: 1rem;
+}
+
+
+.scene-characters__list {
+  display: flex;
+  align-items: stretch;
+  gap: 0.6rem;
+
+  overflow-x: auto;
+}
+
+
+.scene-character {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  min-width: 130px;
+
+  padding: 0.55rem 0.7rem;
+
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+
+  background: var(--color-surface-raised);
+}
+
+
+.scene-character strong {
+  font-size: 0.9rem;
+}
+
+
+.scene-character span {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
