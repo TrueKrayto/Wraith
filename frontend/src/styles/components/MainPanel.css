@@ -33,10 +33,11 @@
 }
 
 
-.game-entry p {
-  margin: 0;
+.game-entry {
+  width: min(900px, 100%);
+  max-width: 100%;
 
-  line-height: 1.55;
+  flex: 0 0 auto;
 }
 
 
