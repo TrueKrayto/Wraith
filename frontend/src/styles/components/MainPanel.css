@@ -1,14 +1,11 @@
 .main-panel {
   padding: 1rem 1.25rem;
+  overflow-y: auto;
 }
 
 
 .main-panel__content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  padding-right: 0.4rem;
+  width: 100%;
 }
 
 
@@ -20,7 +17,15 @@
 
 
 .game-entry {
-  max-width: 900px;
+  width: min(900px, 100%);
+  max-width: 100%;
+
+  margin-bottom: 1rem;
+}
+
+
+.game-entry:last-child {
+  margin-bottom: 0;
 }
 
 
@@ -33,11 +38,10 @@
 }
 
 
-.game-entry {
-  width: min(900px, 100%);
-  max-width: 100%;
+.game-entry p {
+  margin: 0;
 
-  flex: 0 0 auto;
+  line-height: 1.55;
 }
 
 
@@ -80,6 +84,7 @@
 
 .game-entry__debug summary {
   cursor: pointer;
+
   font-size: 0.8rem;
 }
 
