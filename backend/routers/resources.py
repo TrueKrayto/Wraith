@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from backend import models, schemas
 from backend.database import get_db
-from backend.game.resources import clamp_resource
+from backend.entities.characters.resources import clamp_resource
 from backend.services.resources import change_resource
 
 

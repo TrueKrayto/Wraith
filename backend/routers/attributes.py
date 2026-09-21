@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from backend import models, schemas
 from backend.database import get_db
-from backend.game.attributes import clamp_attribute
+from backend.entities.characters.attributes import clamp_attribute
 
 
 router = APIRouter(

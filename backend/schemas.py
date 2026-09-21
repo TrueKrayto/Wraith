@@ -1,20 +1,26 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
+
+
+CharacterRole = Literal["player", "npc"]
 
 
 class CharacterCreate(BaseModel):
     name: str
-    role: str
+    role: CharacterRole
     level: int = 1
 
 class CharacterUpdate(BaseModel):
     name: str | None = None
-    role: str | None = None
+    role: CharacterRole | None = None
 
 class CharacterRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     name: str
+    # Keep legacy occupation-style roles readable until they are reassigned.
     role: str
     level: int
 
@@ -185,3 +191,19 @@ class ActionProposal(BaseModel):
 class PlayerActionRequest(BaseModel):
     actor_character_id: int
     action_text: str
+
+class NPCCreationData(BaseModel):
+    name: str
+    age: int | None = None
+    species: str = "Human"
+    sex: str | None = None
+
+    faction: str | None = None
+    occupation: str | None = None
+    rank: str | None = None
+    home: str | None = None
+
+    current_location: str | None = None
+
+class NPCCreateRequest(BaseModel):
+    prompt: str

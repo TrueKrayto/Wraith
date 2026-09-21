@@ -1,8 +1,8 @@
 from backend import models
 from backend.database import SessionLocal
-from backend.game.attributes import default_attributes
-from backend.game.resources import default_resources
-from backend.game.skills import default_skills
+from backend.entities.characters.attributes import default_attributes
+from backend.entities.characters.resources import default_resources
+from backend.entities.characters.skills import default_skills
 
 
 db = SessionLocal()

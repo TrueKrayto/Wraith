@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend import models
-from backend.game.resources import clamp_resource
+from backend.entities.characters.resources import clamp_resource
 
 
 def get_resource(

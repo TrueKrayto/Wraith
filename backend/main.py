@@ -9,6 +9,7 @@ from backend.routers.combat import router as combat_router
 from backend.routers.play import router as play_router
 from backend.routers.resources import router as resources_router
 from backend.routers.skills import router as skills_router
+from backend.routers.npc import router as npc_router
 
 
 app = FastAPI()
@@ -29,6 +30,7 @@ app.include_router(combat_router)
 app.include_router(checks_router)
 app.include_router(actions_router)
 app.include_router(play_router)
+app.include_router(npc_router)
 
 
 @app.get("/health")

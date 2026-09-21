@@ -1,4 +1,4 @@
-from backend.game.levels import clamp_level
+from .levels import clamp_level
 
 
 SKILL_CAP_PER_LEVEL = 5

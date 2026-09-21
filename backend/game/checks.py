@@ -1,5 +1,5 @@
 from backend.game.dice import roll_d20
-from backend.game.levels import clamp_level
+from backend.entities.characters.levels import clamp_level
 
 
 def calculate_check_power(
