@@ -3,9 +3,6 @@ from .schemas import NPCCreationData
 from .statblock_generator import generate_character_statblock
 
 
-npcs: dict[str, NPC] = {}
-
-
 def create_npc(
     payload: NPCCreationData,
     seed: str | int | None = None,
@@ -13,8 +10,8 @@ def create_npc(
     """
     Create a complete NPC from a validated creation payload.
 
-    Generates exact attributes, skills, and resources,
-    stores the NPC, and returns it.
+    This function only constructs character state.
+    Persistence is handled outside the character package.
     """
 
     statblock = generate_character_statblock(
@@ -31,18 +28,25 @@ def create_npc(
         age=payload.age,
         species=payload.species,
         sex=payload.sex,
+
         faction=payload.faction,
         occupation=payload.occupation,
         rank=payload.rank,
         home=payload.home,
+
         current_location=payload.current_location,
+
         tier=payload.tier,
         level=payload.level,
+
+        description=payload.description,
+        personality=payload.personality,
+
+        enriched=False,
+
         attributes=statblock["attributes"],
         skills=statblock["skills"],
         resources=statblock["resources"],
     )
-
-    npcs[npc.npc_id] = npc
 
     return npc

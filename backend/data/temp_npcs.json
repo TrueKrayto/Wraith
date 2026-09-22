@@ -1,0 +1,213 @@
+{
+  "f5811d30-2b5e-4203-a4f4-83ec0830b7e2": {
+    "name": "Ben",
+    "age": 22,
+    "species": "Human",
+    "sex": "male",
+    "faction": null,
+    "occupation": "Archer",
+    "rank": null,
+    "home": "Arcadia",
+    "current_location": null,
+    "alive": true,
+    "tier": "low",
+    "level": 6,
+    "description": "Young human archer from Arcadia.",
+    "personality": null,
+    "enriched": false,
+    "attributes": {
+      "strength": 9,
+      "agility": 11,
+      "endurance": 8,
+      "intellect": 9,
+      "attunement": 3,
+      "presence": 8
+    },
+    "skills": {
+      "charisma": 12,
+      "stealth": 10,
+      "perception": 26,
+      "survival": 13,
+      "combat": 22,
+      "magic": 3,
+      "archery": 26,
+      "tracking": 17
+    },
+    "resources": {
+      "health": {
+        "current": 180,
+        "maximum": 180
+      },
+      "mana": {
+        "current": 130,
+        "maximum": 130
+      },
+      "stamina": {
+        "current": 195,
+        "maximum": 195
+      }
+    },
+    "status_effects": {},
+    "npc_id": "f5811d30-2b5e-4203-a4f4-83ec0830b7e2"
+  },
+  "e5a6f670-8be3-4ddc-baee-2ecc307df25d": {
+    "name": "Clara",
+    "age": 24,
+    "species": "Human",
+    "sex": "female",
+    "faction": null,
+    "occupation": "Noble",
+    "rank": "Lady",
+    "home": null,
+    "current_location": null,
+    "alive": true,
+    "tier": "medium",
+    "level": 6,
+    "description": "Beautiful, kind-hearted noble lady who is passionate about singing and dancing.",
+    "personality": "Kind-hearted, passionate, loves music and dance.",
+    "enriched": false,
+    "attributes": {
+      "strength": 3,
+      "agility": 13,
+      "endurance": 9,
+      "intellect": 5,
+      "attunement": 3,
+      "presence": 12
+    },
+    "skills": {
+      "charisma": 21,
+      "stealth": 6,
+      "perception": 13,
+      "survival": 2,
+      "combat": 6,
+      "magic": 7,
+      "singing": 24,
+      "dancing": 26,
+      "diplomacy": 21,
+      "court etiquette": 25
+    },
+    "resources": {
+      "health": {
+        "current": 190,
+        "maximum": 190
+      },
+      "mana": {
+        "current": 130,
+        "maximum": 130
+      },
+      "stamina": {
+        "current": 210,
+        "maximum": 210
+      }
+    },
+    "status_effects": {},
+    "npc_id": "e5a6f670-8be3-4ddc-baee-2ecc307df25d"
+  },
+  "aca2a052-a1f4-42b1-8e42-b9a666323a57": {
+    "name": "Revellion",
+    "age": 800,
+    "species": "Dragon",
+    "sex": null,
+    "faction": null,
+    "occupation": null,
+    "rank": null,
+    "home": null,
+    "current_location": null,
+    "alive": true,
+    "tier": "high",
+    "level": 48,
+    "description": "Massive crimson scaled dragon, 200 feet long with massive jaws and a long spiked tail.",
+    "personality": null,
+    "enriched": false,
+    "attributes": {
+      "strength": 15,
+      "agility": 8,
+      "endurance": 18,
+      "intellect": 14,
+      "attunement": 13,
+      "presence": 19
+    },
+    "skills": {
+      "charisma": 110,
+      "stealth": 48,
+      "perception": 161,
+      "survival": 177,
+      "combat": 210,
+      "magic": 170,
+      "fire breath": 181,
+      "flight": 159,
+      "scale armor": 160,
+      "ancient knowledge": 133
+    },
+    "resources": {
+      "health": {
+        "current": 700,
+        "maximum": 700
+      },
+      "mana": {
+        "current": 650,
+        "maximum": 650
+      },
+      "stamina": {
+        "current": 650,
+        "maximum": 650
+      }
+    },
+    "status_effects": {},
+    "npc_id": "aca2a052-a1f4-42b1-8e42-b9a666323a57"
+  },
+  "38986452-9f12-44ec-b339-a029f8096546": {
+    "name": "Marius",
+    "age": 35,
+    "species": "Human",
+    "sex": "male",
+    "faction": null,
+    "occupation": "Knight",
+    "rank": "Knight",
+    "home": null,
+    "current_location": null,
+    "alive": true,
+    "tier": "medium",
+    "level": 20,
+    "description": "Knight known for loyalty, bravery, and honesty.",
+    "personality": "Loyal, brave, honest.",
+    "enriched": false,
+    "attributes": {
+      "strength": 15,
+      "agility": 8,
+      "endurance": 12,
+      "intellect": 6,
+      "attunement": 4,
+      "presence": 13
+    },
+    "skills": {
+      "charisma": 66,
+      "stealth": 18,
+      "perception": 81,
+      "survival": 51,
+      "combat": 89,
+      "magic": 18,
+      "swordsmanship": 67,
+      "horsemanship": 77,
+      "tactics": 51,
+      "leadership": 74,
+      "shield defense": 88
+    },
+    "resources": {
+      "health": {
+        "current": 360,
+        "maximum": 360
+      },
+      "mana": {
+        "current": 280,
+        "maximum": 280
+      },
+      "stamina": {
+        "current": 340,
+        "maximum": 340
+      }
+    },
+    "status_effects": {},
+    "npc_id": "38986452-9f12-44ec-b339-a029f8096546"
+  }
+}

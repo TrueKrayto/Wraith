@@ -69,6 +69,31 @@ use the same age range as a young human.
 
 If there is genuinely no useful basis for estimating age, return null.
 
+DESCRIPTION AND PERSONALITY
+
+The initial creation pass may store a short description and personality stub.
+
+If the user's description explicitly provides appearance or personality
+information, preserve it in these fields.
+
+Examples:
+
+"Ben, a young archer with messy blond hair"
+description:
+"Young human archer with messy blond hair."
+
+"Ben is shy but kind"
+personality:
+"Shy but kind."
+
+Keep these fields short. They are only initial stubs.
+
+Do NOT invent detailed appearance or personality merely to fill these fields.
+
+If the prompt gives no meaningful information for a field, return null.
+
+A later enrichment process will create or expand missing narrative information.
+
 
 OTHER IDENTITY FIELDS
 

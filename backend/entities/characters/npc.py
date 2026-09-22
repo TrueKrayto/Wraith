@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from uuid import uuid4
 
+from .status_effects import StatusEffect
+
 
 @dataclass
 class NPC:
@@ -24,10 +26,25 @@ class NPC:
     tier: str = "low"
     level: int = 1
 
+    # Stable narrative identity
+    description: str | None = None
+    personality: str | None = None
+    appearance: str | None = None
+    mannerisms: str | None = None
+    speech_style: str | None = None
+
+    # Enrichment state
+    enriched: bool = False
+
     # Mechanical character data
     attributes: dict[str, int] = field(default_factory=dict)
     skills: dict[str, int] = field(default_factory=dict)
     resources: dict[str, dict[str, int]] = field(
+        default_factory=dict
+    )
+
+    # Active character state
+    status_effects: dict[str, StatusEffect] = field(
         default_factory=dict
     )
 
