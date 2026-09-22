@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend import schemas
-from backend.database import get_db
-from backend.services.checks import (
+from backend.level_2_services.game import (
     resolve_character_check,
     resolve_opposed_character_check,
 )
+from backend.level_4_systems.data import get_db
 
 
 router = APIRouter(
@@ -53,7 +53,7 @@ def opposed_character_check(
     db: Session = Depends(get_db),
 ):
     try:
-        return resolve_opposed_character_check(
+        result = resolve_opposed_character_check(
             db=db,
             attacker_character_id=check_request.attacker_character_id,
             defender_character_id=check_request.defender_character_id,
@@ -68,6 +68,8 @@ def opposed_character_check(
             attacker_situational_bonus=check_request.attacker_situational_bonus,
             defender_situational_bonus=check_request.defender_situational_bonus,
         )
+
+        return result
 
     except ValueError as error:
         raise HTTPException(

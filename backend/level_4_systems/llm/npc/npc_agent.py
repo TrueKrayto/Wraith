@@ -1,14 +1,13 @@
 import json
+from typing import TypeVar
 
-from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
-from backend import models, schemas
-from backend.llm.client import get_llm_client, get_llm_model
-from backend.llm.interpreter import (
-    build_character_context,
-    check_proposal_is_executable,
+
+ProposalT = TypeVar(
+    "ProposalT",
+    bound=BaseModel,
 )
-from backend.services.actions import validate_action_proposal
 
 
 SYSTEM_PROMPT = """
@@ -204,40 +203,102 @@ Return JSON only.
 """
 
 
-def decide_npc_action(
-    db: Session,
-    npc_character_id: int,
-    player_action: str,
-    player_result: dict,
-) -> schemas.ActionProposal:
-    npc = (
-        db.query(models.Character)
-        .filter(models.Character.id == npc_character_id)
-        .first()
+def _check_proposal_is_executable(
+    proposal: BaseModel,
+) -> None:
+    """
+    Check the minimum structural requirements needed for a
+    proposed action to be mechanically resolvable.
+
+    Full game validation remains outside the NPC subsystem.
+    """
+
+    checks = getattr(
+        proposal,
+        "checks",
+        [],
     )
 
-    if npc is None:
-        raise ValueError(
-            f"NPC character {npc_character_id} does not exist."
+    for check in checks:
+        is_fixed = (
+            getattr(
+                check,
+                "difficulty",
+                None,
+            )
+            is not None
         )
 
-    client = get_llm_client()
-    model = get_llm_model()
+        is_opposed = (
+            getattr(
+                check,
+                "target_character_id",
+                None,
+            )
+            is not None
+            and getattr(
+                check,
+                "target_attribute_name",
+                None,
+            )
+            is not None
+            and getattr(
+                check,
+                "target_core_skill_name",
+                None,
+            )
+            is not None
+        )
 
-    context = build_character_context(
-        db=db,
-        actor_character_id=npc_character_id,
+        if not is_fixed and not is_opposed:
+            check_id = getattr(
+                check,
+                "check_id",
+                "unknown",
+            )
+
+            raise ValueError(
+                f"Check '{check_id}' must either have "
+                "a difficulty or complete opposed-check "
+                "target stats."
+            )
+
+
+def decide_npc_action(
+    *,
+    client,
+    model: str,
+    npc_character_id: int | str,
+    npc_context: dict,
+    scene_context: str,
+    player_action: str,
+    player_result: dict,
+    proposal_schema: type[ProposalT],
+) -> ProposalT:
+    """
+    Generate an attempted NPC action.
+
+    The caller supplies:
+
+    - the LLM client
+    - the model
+    - NPC identity/context
+    - scene context
+    - the previous player action/result
+    - the proposal schema to use
+
+    This subsystem does not access persistence, select a provider,
+    execute mechanics, or import another LLM sibling.
+    """
+
+    schema = proposal_schema.model_json_schema()
+
+    npc_name = str(
+        npc_context.get(
+            "name",
+            "NPC",
+        )
     )
-
-    # build_character_context currently labels the acting character as PLAYER.
-    # For an NPC decision call, relabel that actor so the model is not confused.
-    context = context.replace(
-        "PLAYER:",
-        "NPC ACTOR:",
-        1,
-    )
-
-    schema = schemas.ActionProposal.model_json_schema()
 
     previous_error = None
 
@@ -260,14 +321,11 @@ Correct that problem in this response.
 
 NPC YOU CONTROL:
 
-character_id={npc.id}
-name={npc.name}
-role={npc.role}
-level={npc.level}
+{json.dumps(npc_context, indent=2)}
 
 CURRENT SCENE:
 
-{context}
+{scene_context}
 
 PLAYER'S PREVIOUS ACTION:
 
@@ -283,7 +341,7 @@ ACTION PROPOSAL JSON SCHEMA:
 
 {correction}
 
-Decide what {npc.name} attempts to do next.
+Decide what {npc_name} attempts to do next.
 
 Return one valid JSON object matching the schema exactly.
 """
@@ -294,20 +352,26 @@ Return one valid JSON object matching the schema exactly.
                 input=prompt,
             )
 
-            proposal = schemas.ActionProposal.model_validate_json(
+            proposal = proposal_schema.model_validate_json(
                 response.output_text.strip()
             )
 
-            if proposal.actor_character_id != npc_character_id:
+            actor_character_id = getattr(
+                proposal,
+                "actor_character_id",
+                None,
+            )
+
+            if actor_character_id != npc_character_id:
                 raise ValueError(
                     "NPC proposal used the wrong actor_character_id. "
                     f"Expected {npc_character_id}, "
-                    f"received {proposal.actor_character_id}."
+                    f"received {actor_character_id}."
                 )
 
-            proposal = validate_action_proposal(proposal)
-
-            check_proposal_is_executable(proposal)
+            _check_proposal_is_executable(
+                proposal
+            )
 
             return proposal
 

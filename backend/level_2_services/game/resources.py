@@ -1,19 +1,19 @@
 from sqlalchemy.orm import Session
 
-from backend import models
-from backend.entities.characters.resources import clamp_resource
+from backend.level_4_systems.data import CharacterResource
+from backend.level_5_entities.characters import clamp_resource
 
 
 def get_resource(
     db: Session,
     character_id: int,
     resource_name: str,
-) -> models.CharacterResource:
+) -> CharacterResource:
     resource = (
-        db.query(models.CharacterResource)
+        db.query(CharacterResource)
         .filter(
-            models.CharacterResource.character_id == character_id,
-            models.CharacterResource.name == resource_name,
+            CharacterResource.character_id == character_id,
+            CharacterResource.name == resource_name,
         )
         .first()
     )
@@ -31,7 +31,7 @@ def change_resource(
     character_id: int,
     resource_name: str,
     amount: int,
-) -> models.CharacterResource:
+) -> CharacterResource:
     """
     Change a resource by a relative amount.
 
@@ -60,7 +60,7 @@ def spend_resource(
     character_id: int,
     resource_name: str,
     amount: int,
-) -> models.CharacterResource:
+) -> CharacterResource:
     """
     Spend a resource only if enough is available.
     """
@@ -91,7 +91,7 @@ def restore_resource(
     character_id: int,
     resource_name: str,
     amount: int,
-) -> models.CharacterResource:
+) -> CharacterResource:
     """
     Restore a resource without exceeding its maximum.
     """

@@ -1,9 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend import models, schemas
-from backend.database import get_db
-from backend.entities.characters.skills import clamp_skill
+from backend.level_4_systems.data import (
+    Character,
+    CharacterSkill,
+    get_db,
+)
+from backend.level_5_entities.characters import (
+    clamp_skill,
+    schemas,
+)
 
 
 router = APIRouter(
@@ -12,15 +18,18 @@ router = APIRouter(
 )
 
 
-@router.post("", response_model=schemas.CharacterSkillRead)
+@router.post(
+    "",
+    response_model=schemas.CharacterSkillRead,
+)
 def create_skill(
     character_id: int,
     skill: schemas.CharacterSkillCreate,
     db: Session = Depends(get_db),
 ):
     character = (
-        db.query(models.Character)
-        .filter(models.Character.id == character_id)
+        db.query(Character)
+        .filter(Character.id == character_id)
         .first()
     )
 
@@ -31,10 +40,10 @@ def create_skill(
         )
 
     existing_skill = (
-        db.query(models.CharacterSkill)
+        db.query(CharacterSkill)
         .filter(
-            models.CharacterSkill.character_id == character_id,
-            models.CharacterSkill.name == skill.name,
+            CharacterSkill.character_id == character_id,
+            CharacterSkill.name == skill.name,
         )
         .first()
     )
@@ -50,7 +59,7 @@ def create_skill(
         character_level=character.level,
     )
 
-    new_skill = models.CharacterSkill(
+    new_skill = CharacterSkill(
         character_id=character_id,
         name=skill.name,
         level=skill_level,
@@ -63,19 +72,27 @@ def create_skill(
     return new_skill
 
 
-@router.get("", response_model=list[schemas.CharacterSkillRead])
+@router.get(
+    "",
+    response_model=list[schemas.CharacterSkillRead],
+)
 def get_skills(
     character_id: int,
     db: Session = Depends(get_db),
 ):
     return (
-        db.query(models.CharacterSkill)
-        .filter(models.CharacterSkill.character_id == character_id)
+        db.query(CharacterSkill)
+        .filter(
+            CharacterSkill.character_id == character_id
+        )
         .all()
     )
 
 
-@router.patch("/{skill_name}", response_model=schemas.CharacterSkillRead)
+@router.patch(
+    "/{skill_name}",
+    response_model=schemas.CharacterSkillRead,
+)
 def update_skill(
     character_id: int,
     skill_name: str,
@@ -83,8 +100,8 @@ def update_skill(
     db: Session = Depends(get_db),
 ):
     character = (
-        db.query(models.Character)
-        .filter(models.Character.id == character_id)
+        db.query(Character)
+        .filter(Character.id == character_id)
         .first()
     )
 
@@ -95,10 +112,10 @@ def update_skill(
         )
 
     skill = (
-        db.query(models.CharacterSkill)
+        db.query(CharacterSkill)
         .filter(
-            models.CharacterSkill.character_id == character_id,
-            models.CharacterSkill.name == skill_name,
+            CharacterSkill.character_id == character_id,
+            CharacterSkill.name == skill_name,
         )
         .first()
     )

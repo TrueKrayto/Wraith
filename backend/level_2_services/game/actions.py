@@ -1,12 +1,12 @@
-from backend import schemas
+from backend.level_4_systems.llm.game import ActionProposal
 
 
 CALLED_SHOT_DIFFICULTY_BONUS = 10
 
 
 def validate_action_proposal(
-    proposal: schemas.ActionProposal,
-) -> schemas.ActionProposal:
+    proposal: ActionProposal,
+) -> ActionProposal:
     """
     Validate the mechanical pieces of a freeform action proposal.
 

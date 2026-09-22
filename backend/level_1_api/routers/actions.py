@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend import schemas
-from backend.database import get_db
-from backend.services.action_executor import execute_action
-from backend.services.actions import validate_action_proposal
+from backend.level_2_services.game import (
+    execute_action,
+    validate_action_proposal,
+)
+
+from backend.level_4_systems.data import get_db
+from backend.level_4_systems.llm.game import ActionProposal
 
 
 router = APIRouter(
@@ -13,9 +16,9 @@ router = APIRouter(
 )
 
 
-@router.post("/validate", response_model=schemas.ActionProposal)
+@router.post("/validate", response_model=ActionProposal)
 def validate_action(
-    proposal: schemas.ActionProposal,
+    proposal: ActionProposal,
 ):
     try:
         return validate_action_proposal(proposal)
@@ -29,7 +32,7 @@ def validate_action(
 
 @router.post("/execute")
 def execute_proposed_action(
-    proposal: schemas.ActionProposal,
+    proposal: ActionProposal,
     db: Session = Depends(get_db),
 ):
     try:

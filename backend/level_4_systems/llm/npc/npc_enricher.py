@@ -1,10 +1,8 @@
 import json
 
-from backend.entities.characters import schemas
-from backend.entities.characters.npc import NPC
-from backend.llm.client import (
-    get_llm_client,
-    get_llm_model,
+from backend.level_5_entities.characters import (
+    NPC,
+    schemas,
 )
 
 
@@ -395,10 +393,11 @@ Do not add fields that are not present in the schema.
 """
 
 
-def _build_npc_context(npc: NPC) -> dict:
+def _build_npc_context(
+    npc: NPC,
+) -> dict:
     """
-    Build the canonical character context supplied to the enrichment
-    model.
+    Build canonical character context for enrichment.
 
     Temporary status effects are intentionally omitted because
     enrichment describes the NPC's normal baseline identity.
@@ -439,30 +438,22 @@ def _build_npc_context(npc: NPC) -> dict:
         },
 
         "attributes": npc.attributes,
-
         "skills": npc.skills,
-
         "resources": npc.resources,
     }
 
 
 def generate_npc_enrichment(
+    *,
+    client,
+    model: str,
     npc: NPC,
 ) -> schemas.NPCEnrichmentData:
     """
-    Generate stable narrative identity for one existing NPC.
+    Generate stable narrative identity for one NPC.
 
-    This function:
-
-    - does not mutate the NPC
-    - does not save the NPC
-    - does not set enriched=True
-
-    It only returns validated NPCEnrichmentData.
+    This function does not mutate or persist the NPC.
     """
-
-    client = get_llm_client()
-    model = get_llm_model()
 
     npc_context = _build_npc_context(npc)
 
@@ -473,7 +464,6 @@ def generate_npc_enrichment(
     previous_error = None
 
     for attempt in range(2):
-
         correction = ""
 
         if previous_error is not None:

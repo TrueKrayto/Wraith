@@ -1,8 +1,12 @@
 from sqlalchemy.orm import Session
 
-from backend.game.combat import resolve_attack
-from backend.services.resources import change_resource, spend_resource
-from backend.services.stats import (
+from backend.level_4_systems.game import resolve_attack
+
+from .resources import (
+    change_resource,
+    spend_resource,
+)
+from .stats import (
     get_character,
     get_check_power,
     get_skill_level,

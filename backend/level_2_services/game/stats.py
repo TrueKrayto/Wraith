@@ -1,16 +1,20 @@
 from sqlalchemy.orm import Session
 
-from backend import models
-from backend.game.checks import calculate_check_power
+from backend.level_4_systems.data import (
+    Character,
+    CharacterAttribute,
+    CharacterSkill,
+)
+from backend.level_4_systems.game import calculate_check_power
 
 
 def get_character(
     db: Session,
     character_id: int,
-) -> models.Character:
+) -> Character:
     character = (
-        db.query(models.Character)
-        .filter(models.Character.id == character_id)
+        db.query(Character)
+        .filter(Character.id == character_id)
         .first()
     )
 
@@ -28,10 +32,10 @@ def get_attribute_value(
     attribute_name: str,
 ) -> int:
     attribute = (
-        db.query(models.CharacterAttribute)
+        db.query(CharacterAttribute)
         .filter(
-            models.CharacterAttribute.character_id == character_id,
-            models.CharacterAttribute.name == attribute_name,
+            CharacterAttribute.character_id == character_id,
+            CharacterAttribute.name == attribute_name,
         )
         .first()
     )
@@ -51,10 +55,10 @@ def get_skill_level(
     skill_name: str,
 ) -> int:
     skill = (
-        db.query(models.CharacterSkill)
+        db.query(CharacterSkill)
         .filter(
-            models.CharacterSkill.character_id == character_id,
-            models.CharacterSkill.name == skill_name,
+            CharacterSkill.character_id == character_id,
+            CharacterSkill.name == skill_name,
         )
         .first()
     )

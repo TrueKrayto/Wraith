@@ -1,8 +1,9 @@
 from threading import Lock
 from typing import Protocol
 
-from backend.entities.characters.npc import NPC
-from backend.entities.characters.temp_store import (
+from backend.level_5_entities.characters import NPC
+
+from .temp_store import (
     load_npcs,
     save_npcs,
 )

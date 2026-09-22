@@ -1,21 +1,22 @@
 from sqlalchemy.orm import Session
 
-from backend import schemas
-from backend.game.damage import calculate_damage
-from backend.services.actions import (
+from backend.level_4_systems.game import calculate_damage
+from backend.level_4_systems.llm.game import ActionProposal
+
+from .actions import (
     CALLED_SHOT_DIFFICULTY_BONUS,
     validate_action_proposal,
 )
-from backend.services.checks import (
+from .checks import (
     resolve_character_check,
     resolve_opposed_character_check,
 )
-from backend.services.resources import (
+from .resources import (
     change_resource,
     get_resource,
     spend_resource,
 )
-from backend.services.stats import (
+from .stats import (
     get_character,
     get_skill_level,
 )
@@ -23,7 +24,7 @@ from backend.services.stats import (
 
 def execute_action(
     db: Session,
-    proposal: schemas.ActionProposal,
+    proposal: ActionProposal,
 ) -> dict:
     """
     Validate and execute a structured freeform action proposal.

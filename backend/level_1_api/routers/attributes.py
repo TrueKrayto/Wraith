@@ -1,9 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend import models, schemas
-from backend.database import get_db
-from backend.entities.characters.attributes import clamp_attribute
+from backend.level_4_systems.data import (
+    Character,
+    CharacterAttribute,
+    get_db,
+)
+from backend.level_5_entities.characters import (
+    clamp_attribute,
+    schemas,
+)
 
 
 router = APIRouter(
@@ -12,15 +18,18 @@ router = APIRouter(
 )
 
 
-@router.post("", response_model=schemas.CharacterAttributeRead)
+@router.post(
+    "",
+    response_model=schemas.CharacterAttributeRead,
+)
 def create_attribute(
     character_id: int,
     attribute: schemas.CharacterAttributeCreate,
     db: Session = Depends(get_db),
 ):
     character = (
-        db.query(models.Character)
-        .filter(models.Character.id == character_id)
+        db.query(Character)
+        .filter(Character.id == character_id)
         .first()
     )
 
@@ -31,10 +40,10 @@ def create_attribute(
         )
 
     existing_attribute = (
-        db.query(models.CharacterAttribute)
+        db.query(CharacterAttribute)
         .filter(
-            models.CharacterAttribute.character_id == character_id,
-            models.CharacterAttribute.name == attribute.name,
+            CharacterAttribute.character_id == character_id,
+            CharacterAttribute.name == attribute.name,
         )
         .first()
     )
@@ -45,9 +54,11 @@ def create_attribute(
             detail="Character already has this attribute",
         )
 
-    attribute_value = clamp_attribute(attribute.value)
+    attribute_value = clamp_attribute(
+        attribute.value
+    )
 
-    new_attribute = models.CharacterAttribute(
+    new_attribute = CharacterAttribute(
         character_id=character_id,
         name=attribute.name,
         value=attribute_value,
@@ -60,19 +71,28 @@ def create_attribute(
     return new_attribute
 
 
-@router.get("", response_model=list[schemas.CharacterAttributeRead])
+@router.get(
+    "",
+    response_model=list[schemas.CharacterAttributeRead],
+)
 def get_attributes(
     character_id: int,
     db: Session = Depends(get_db),
 ):
     return (
-        db.query(models.CharacterAttribute)
-        .filter(models.CharacterAttribute.character_id == character_id)
+        db.query(CharacterAttribute)
+        .filter(
+            CharacterAttribute.character_id
+            == character_id
+        )
         .all()
     )
 
 
-@router.patch("/{attribute_name}", response_model=schemas.CharacterAttributeRead)
+@router.patch(
+    "/{attribute_name}",
+    response_model=schemas.CharacterAttributeRead,
+)
 def update_attribute(
     character_id: int,
     attribute_name: str,
@@ -80,10 +100,10 @@ def update_attribute(
     db: Session = Depends(get_db),
 ):
     attribute = (
-        db.query(models.CharacterAttribute)
+        db.query(CharacterAttribute)
         .filter(
-            models.CharacterAttribute.character_id == character_id,
-            models.CharacterAttribute.name == attribute_name,
+            CharacterAttribute.character_id == character_id,
+            CharacterAttribute.name == attribute_name,
         )
         .first()
     )
@@ -94,7 +114,9 @@ def update_attribute(
             detail="Attribute not found",
         )
 
-    attribute.value = clamp_attribute(attribute_update.value)
+    attribute.value = clamp_attribute(
+        attribute_update.value
+    )
 
     db.commit()
     db.refresh(attribute)

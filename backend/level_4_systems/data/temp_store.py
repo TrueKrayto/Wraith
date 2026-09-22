@@ -2,13 +2,14 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from .npc import NPC
-from .status_effects import StatusEffect
+from backend.level_5_entities.characters import (
+    NPC,
+    StatusEffect,
+)
 
 
 STORE_PATH = (
-    Path(__file__).resolve().parents[2]
-    / "data"
+    Path(__file__).resolve().parent
     / "temp_npcs.json"
 )
 

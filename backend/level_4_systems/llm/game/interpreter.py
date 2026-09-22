@@ -1,10 +1,6 @@
 import json
 
-from sqlalchemy.orm import Session
-
-from backend import models, schemas
-from backend.llm.client import get_llm_client, get_llm_model
-from backend.services.actions import validate_action_proposal
+from .schemas import ActionProposal
 
 
 SYSTEM_PROMPT = """
@@ -171,88 +167,17 @@ Return JSON only.
 """
 
 
-def build_character_context(
-    db: Session,
-    actor_character_id: int,
-) -> str:
-    characters = db.query(models.Character).all()
-
-    lines = []
-
-    for character in characters:
-        label = (
-            "PLAYER"
-            if character.id == actor_character_id
-            else "PRESENT"
-        )
-
-        lines.append(
-            f"{label}: character_id={character.id}, "
-            f"name={character.name}, "
-            f"role={character.role}, "
-            f"level={character.level}"
-        )
-
-        attributes = (
-            db.query(models.CharacterAttribute)
-            .filter(
-                models.CharacterAttribute.character_id
-                == character.id
-            )
-            .all()
-        )
-
-        skills = (
-            db.query(models.CharacterSkill)
-            .filter(
-                models.CharacterSkill.character_id
-                == character.id
-            )
-            .all()
-        )
-
-        resources = (
-            db.query(models.CharacterResource)
-            .filter(
-                models.CharacterResource.character_id
-                == character.id
-            )
-            .all()
-        )
-
-        lines.append(
-            "Attributes: "
-            + ", ".join(
-                f"{attribute.name}={attribute.value}"
-                for attribute in attributes
-            )
-        )
-
-        lines.append(
-            "Skills: "
-            + ", ".join(
-                f"{skill.name}={skill.level}"
-                for skill in skills
-            )
-        )
-
-        lines.append(
-            "Resources: "
-            + ", ".join(
-                f"{resource.name}="
-                f"{resource.current}/{resource.maximum}"
-                for resource in resources
-            )
-        )
-
-        lines.append("")
-
-    return "\n".join(lines)
-
-
 def check_proposal_is_executable(
-    proposal: schemas.ActionProposal,
+    proposal: ActionProposal,
 ) -> None:
+    """
+    Ensure every proposed check has enough information for the
+    deterministic engine to resolve it.
+
+    This only validates the structural requirements of the LLM output.
+    Broader mechanical validation belongs outside the LLM subsystem.
+    """
+
     for check in proposal.checks:
         is_fixed = check.difficulty is not None
 
@@ -270,18 +195,29 @@ def check_proposal_is_executable(
 
 
 def interpret_player_action(
-    db: Session,
-    request: schemas.PlayerActionRequest,
-) -> schemas.ActionProposal:
-    client = get_llm_client()
-    model = get_llm_model()
+    *,
+    client,
+    model: str,
+    actor_character_id: int,
+    action_text: str,
+    scene_context: str,
+) -> ActionProposal:
+    """
+    Interpret a player's natural-language action into an ActionProposal.
 
-    context = build_character_context(
-        db=db,
-        actor_character_id=request.actor_character_id,
-    )
+    The caller supplies:
 
-    schema = schemas.ActionProposal.model_json_schema()
+    - the LLM client
+    - the model to use
+    - the actor character ID
+    - the player's action text
+    - the already-built scene context
+
+    This subsystem does not access persistence, choose an LLM provider,
+    or execute game mechanics.
+    """
+
+    schema = ActionProposal.model_json_schema()
 
     previous_error = None
 
@@ -303,13 +239,16 @@ Correct that problem in this response.
 {SYSTEM_PROMPT}
 
 CURRENT SCENE:
-{context}
+{scene_context}
+
+ACTOR CHARACTER ID:
+{actor_character_id}
 
 ACTION PROPOSAL JSON SCHEMA:
 {json.dumps(schema, indent=2)}
 
 PLAYER ACTION:
-{request.action_text}
+{action_text}
 
 {correction}
 
@@ -322,11 +261,9 @@ Return one valid JSON object matching the schema exactly.
                 input=prompt,
             )
 
-            proposal = schemas.ActionProposal.model_validate_json(
+            proposal = ActionProposal.model_validate_json(
                 response.output_text.strip()
             )
-
-            proposal = validate_action_proposal(proposal)
 
             check_proposal_is_executable(proposal)
 
@@ -336,6 +273,6 @@ Return one valid JSON object matching the schema exactly.
             previous_error = str(error)
 
     raise ValueError(
-        f"LLM could not produce a valid action proposal: "
+        "LLM could not produce a valid action proposal: "
         f"{previous_error}"
     )

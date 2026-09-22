@@ -1,10 +1,6 @@
 import json
 
-from backend.entities.characters import (
-    create_npc,
-    schemas,
-)
-from backend.llm.client import get_llm_client, get_llm_model
+from backend.level_5_entities.characters import schemas
 
 
 SYSTEM_PROMPT = """
@@ -68,6 +64,7 @@ A young elf, dwarf, vampire, or other long-lived species does not necessarily
 use the same age range as a young human.
 
 If there is genuinely no useful basis for estimating age, return null.
+
 
 DESCRIPTION AND PERSONALITY
 
@@ -264,12 +261,21 @@ The character engine combines level and band to generate final values.
 
 
 def generate_npc_data(
+    *,
+    client,
+    model: str,
     npc_prompt: str,
 ) -> schemas.NPCCreationData:
-    """Generate and validate an NPC creation payload."""
+    """
+    Convert a natural-language NPC description into validated
+    NPC creation data.
 
-    client = get_llm_client()
-    model = get_llm_model()
+    This function does not:
+
+    - choose an LLM provider
+    - create the NPC entity
+    - save the NPC
+    """
 
     schema = schemas.NPCCreationData.model_json_schema()
 
@@ -319,18 +325,4 @@ Return one valid JSON object matching the schema exactly.
     raise ValueError(
         "LLM could not generate valid NPC data: "
         f"{previous_error}"
-    )
-
-
-def generate_npc(
-    npc_prompt: str,
-    seed: str | int | None = None,
-):
-    """Generate a complete NPC from a natural-language description."""
-
-    payload = generate_npc_data(npc_prompt)
-
-    return create_npc(
-        payload=payload,
-        seed=seed,
     )

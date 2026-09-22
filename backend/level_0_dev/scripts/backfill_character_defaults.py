@@ -1,22 +1,30 @@
-from backend import models
-from backend.database import SessionLocal
-from backend.entities.characters.attributes import default_attributes
-from backend.entities.characters.resources import default_resources
-from backend.entities.characters.skills import default_skills
+from backend.level_4_systems.data import (
+    SessionLocal,
+    Character,
+    CharacterSkill,
+    CharacterAttribute,
+    CharacterResource,
+)
+
+from backend.level_5_entities.characters import (
+    default_attributes,
+    default_resources,
+    default_skills,
+)
 
 
 db = SessionLocal()
 
 try:
-    characters = db.query(models.Character).all()
+    characters = db.query(Character).all()
 
     for character in characters:
         existing_skills = {
             skill.name
             for skill in (
-                db.query(models.CharacterSkill)
+                db.query(CharacterSkill)
                 .filter(
-                    models.CharacterSkill.character_id == character.id
+                    CharacterSkill.character_id == character.id
                 )
                 .all()
             )
@@ -25,9 +33,9 @@ try:
         existing_attributes = {
             attribute.name
             for attribute in (
-                db.query(models.CharacterAttribute)
+                db.query(CharacterAttribute)
                 .filter(
-                    models.CharacterAttribute.character_id == character.id
+                    CharacterAttribute.character_id == character.id
                 )
                 .all()
             )
@@ -36,9 +44,9 @@ try:
         existing_resources = {
             resource.name
             for resource in (
-                db.query(models.CharacterResource)
+                db.query(CharacterResource)
                 .filter(
-                    models.CharacterResource.character_id == character.id
+                    CharacterResource.character_id == character.id
                 )
                 .all()
             )
@@ -47,7 +55,7 @@ try:
         for name, level in default_skills().items():
             if name not in existing_skills:
                 db.add(
-                    models.CharacterSkill(
+                    CharacterSkill(
                         character_id=character.id,
                         name=name,
                         level=level,
@@ -57,7 +65,7 @@ try:
         for name, value in default_attributes().items():
             if name not in existing_attributes:
                 db.add(
-                    models.CharacterAttribute(
+                    CharacterAttribute(
                         character_id=character.id,
                         name=name,
                         value=value,
@@ -67,7 +75,7 @@ try:
         for name, values in default_resources().items():
             if name not in existing_resources:
                 db.add(
-                    models.CharacterResource(
+                    CharacterResource(
                         character_id=character.id,
                         name=name,
                         current=values["current"],

@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend import models, schemas
-from backend.database import get_db
-from backend.entities.characters.resources import clamp_resource
-from backend.services.resources import change_resource
+from backend.level_2_services.game import change_resource
+from backend.level_4_systems.data import (
+    Character,
+    CharacterResource,
+    get_db,
+)
+from backend.level_5_entities.characters import (
+    clamp_resource,
+    schemas,
+)
 
 
 router = APIRouter(
@@ -13,15 +19,18 @@ router = APIRouter(
 )
 
 
-@router.post("", response_model=schemas.CharacterResourceRead)
+@router.post(
+    "",
+    response_model=schemas.CharacterResourceRead,
+)
 def create_resource(
     character_id: int,
     resource: schemas.CharacterResourceCreate,
     db: Session = Depends(get_db),
 ):
     character = (
-        db.query(models.Character)
-        .filter(models.Character.id == character_id)
+        db.query(Character)
+        .filter(Character.id == character_id)
         .first()
     )
 
@@ -32,10 +41,10 @@ def create_resource(
         )
 
     existing_resource = (
-        db.query(models.CharacterResource)
+        db.query(CharacterResource)
         .filter(
-            models.CharacterResource.character_id == character_id,
-            models.CharacterResource.name == resource.name,
+            CharacterResource.character_id == character_id,
+            CharacterResource.name == resource.name,
         )
         .first()
     )
@@ -46,13 +55,17 @@ def create_resource(
             detail="Character already has this resource",
         )
 
-    maximum = max(1, resource.maximum)
+    maximum = max(
+        1,
+        resource.maximum,
+    )
+
     current = clamp_resource(
         resource.current,
         maximum,
     )
 
-    new_resource = models.CharacterResource(
+    new_resource = CharacterResource(
         character_id=character_id,
         name=resource.name,
         current=current,
@@ -66,19 +79,27 @@ def create_resource(
     return new_resource
 
 
-@router.get("", response_model=list[schemas.CharacterResourceRead])
+@router.get(
+    "",
+    response_model=list[schemas.CharacterResourceRead],
+)
 def get_resources(
     character_id: int,
     db: Session = Depends(get_db),
 ):
     return (
-        db.query(models.CharacterResource)
-        .filter(models.CharacterResource.character_id == character_id)
+        db.query(CharacterResource)
+        .filter(
+            CharacterResource.character_id == character_id
+        )
         .all()
     )
 
 
-@router.patch("/{resource_name}", response_model=schemas.CharacterResourceRead)
+@router.patch(
+    "/{resource_name}",
+    response_model=schemas.CharacterResourceRead,
+)
 def update_resource(
     character_id: int,
     resource_name: str,
@@ -86,10 +107,10 @@ def update_resource(
     db: Session = Depends(get_db),
 ):
     resource = (
-        db.query(models.CharacterResource)
+        db.query(CharacterResource)
         .filter(
-            models.CharacterResource.character_id == character_id,
-            models.CharacterResource.name == resource_name,
+            CharacterResource.character_id == character_id,
+            CharacterResource.name == resource_name,
         )
         .first()
     )
@@ -100,7 +121,10 @@ def update_resource(
             detail="Resource not found",
         )
 
-    amount = resource_update.current - resource.current
+    amount = (
+        resource_update.current
+        - resource.current
+    )
 
     resource = change_resource(
         db=db,

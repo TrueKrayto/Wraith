@@ -1,4 +1,4 @@
-from backend.entities.characters.levels import clamp_level
+from backend.level_5_entities.characters import clamp_level
 
 
 def calculate_damage(

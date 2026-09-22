@@ -1,6 +1,5 @@
-from backend.game.checks import opposed_check
-from backend.game.damage import calculate_damage
-
+from .checks import opposed_check
+from .damage import calculate_damage
 
 def resolve_attack(
     attacker_power: int,

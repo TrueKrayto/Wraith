@@ -1,7 +1,6 @@
 import json
 
-from backend import schemas
-from backend.llm.client import get_llm_client, get_llm_model
+from .schemas import ActionProposal
 
 
 SYSTEM_PROMPT = """
@@ -115,14 +114,21 @@ Return narration only.
 
 
 def narrate_action(
+    *,
+    client,
+    model: str,
     player_action: str,
-    proposal: schemas.ActionProposal,
+    proposal: ActionProposal,
     result: dict,
-    npc_proposal: schemas.ActionProposal | None = None,
+    npc_proposal: ActionProposal | None = None,
     npc_result: dict | None = None,
 ) -> str:
-    client = get_llm_client()
-    model = get_llm_model()
+    """
+    Narrate authoritative game-engine results.
+
+    The caller selects and supplies the LLM client and model.
+    This function does not choose a provider or modify game state.
+    """
 
     npc_section = ""
 

@@ -1,8 +1,12 @@
 from sqlalchemy.orm import Session
 
-from backend.game.checks import difficulty_check, opposed_check
-from backend.services.resources import spend_resource
-from backend.services.stats import get_check_power
+from backend.level_4_systems.game import (
+    difficulty_check,
+    opposed_check,
+)
+
+from .resources import spend_resource
+from .stats import get_check_power
 
 
 def resolve_character_check(

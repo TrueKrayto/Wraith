@@ -5,6 +5,7 @@ __pycache__/
 backend/.venv/
 
 note
+backend/level_1_api/routers/clean_up
 screenshots/
 
 # Environment / secrets

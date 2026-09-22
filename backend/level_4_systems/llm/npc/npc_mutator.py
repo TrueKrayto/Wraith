@@ -1,10 +1,8 @@
 import json
 
-from backend.entities.characters import schemas
-from backend.entities.characters.temp_store import load_npcs
-from backend.llm.client import (
-    get_llm_client,
-    get_llm_model,
+from backend.level_5_entities.characters import (
+    NPC,
+    schemas,
 )
 
 
@@ -810,13 +808,14 @@ as required by the schema.
 """
 
 
-def _build_npc_context() -> list[dict]:
+def _build_npc_context(
+    npcs: list[NPC],
+) -> list[dict]:
     """
-    Load the temporary NPC store and build context for
-    mutation target selection and mechanical interpretation.
-    """
+    Build mutation context from NPCs supplied by the caller.
 
-    npcs = load_npcs()
+    Persistence is deliberately outside this subsystem.
+    """
 
     return [
         {
@@ -835,9 +834,7 @@ def _build_npc_context() -> list[dict]:
             "level": npc.level,
 
             "attributes": npc.attributes,
-
             "skills": npc.skills,
-
             "resources": npc.resources,
 
             "status_effects": {
@@ -854,32 +851,36 @@ def _build_npc_context() -> list[dict]:
                 in npc.status_effects.items()
             },
         }
-        for npc in npcs.values()
+        for npc in npcs
     ]
 
 
 def generate_npc_mutation(
+    *,
+    client,
+    model: str,
     mutation_prompt: str,
+    npcs: list[NPC],
 ) -> schemas.NPCMutationData:
     """
     Convert a natural-language mutation instruction into a
     validated NPCMutationData payload.
 
-    TEMPORARY:
-    NPC lookup currently comes from temp_store.
+    NPCs are supplied by the caller. This subsystem does not
+    access persistence itself.
     """
-
-    npcs = load_npcs()
 
     if not npcs:
         raise ValueError(
-            "No NPCs exist in the temporary store."
+            "At least one NPC must be supplied for mutation."
         )
 
-    npc_context = _build_npc_context()
+    npc_context = _build_npc_context(npcs)
 
-    client = get_llm_client()
-    model = get_llm_model()
+    valid_npc_ids = {
+        npc.npc_id
+        for npc in npcs
+    }
 
     schema = (
         schemas.NPCMutationData.model_json_schema()
@@ -888,7 +889,6 @@ def generate_npc_mutation(
     previous_error = None
 
     for attempt in range(2):
-
         correction = ""
 
         if previous_error is not None:
@@ -931,9 +931,9 @@ Return one valid JSON object matching the schema exactly.
                 )
             )
 
-            if mutation.npc_id not in npcs:
+            if mutation.npc_id not in valid_npc_ids:
                 raise ValueError(
-                    "LLM selected an NPC ID that does not exist."
+                    "LLM selected an NPC ID that was not supplied."
                 )
 
             return mutation

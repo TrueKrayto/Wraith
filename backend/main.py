@@ -1,18 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.level_1_api.routers.actions import router as actions_router
-from backend.level_1_api.routers.attributes import router as attributes_router
-from backend.level_1_api.routers.characters import router as characters_router
-from backend.level_1_api.routers.checks import router as checks_router
-from backend.level_1_api.routers.combat import router as combat_router
-from backend.level_1_api.routers.play import router as play_router
-from backend.level_1_api.routers.resources import router as resources_router
-from backend.level_1_api.routers.skills import router as skills_router
-from backend.level_1_api.routers.npc import router as npc_router
+from backend.level_1_api import (
+    actions_router,
+    attributes_router,
+    characters_router,
+    checks_router,
+    combat_router,
+    npc_router,
+    play_router,
+    resources_router,
+    skills_router,
+)
 
 
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,6 +24,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.include_router(characters_router)
 app.include_router(skills_router)
@@ -35,4 +39,6 @@ app.include_router(npc_router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+    }
