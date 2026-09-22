@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers.actions import router as actions_router
-from backend.routers.attributes import router as attributes_router
-from backend.routers.characters import router as characters_router
-from backend.routers.checks import router as checks_router
-from backend.routers.combat import router as combat_router
-from backend.routers.play import router as play_router
-from backend.routers.resources import router as resources_router
-from backend.routers.skills import router as skills_router
-from backend.routers.npc import router as npc_router
+from backend.level_1_api.routers.actions import router as actions_router
+from backend.level_1_api.routers.attributes import router as attributes_router
+from backend.level_1_api.routers.characters import router as characters_router
+from backend.level_1_api.routers.checks import router as checks_router
+from backend.level_1_api.routers.combat import router as combat_router
+from backend.level_1_api.routers.play import router as play_router
+from backend.level_1_api.routers.resources import router as resources_router
+from backend.level_1_api.routers.skills import router as skills_router
+from backend.level_1_api.routers.npc import router as npc_router
 
 
 app = FastAPI()
