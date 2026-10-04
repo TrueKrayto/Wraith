@@ -14,6 +14,9 @@
     "level": 6,
     "description": "Young human archer from Arcadia.",
     "personality": null,
+    "appearance": null,
+    "mannerisms": null,
+    "speech_style": null,
     "enriched": false,
     "attributes": {
       "strength": 9,
@@ -65,6 +68,9 @@
     "level": 6,
     "description": "Beautiful, kind-hearted noble lady who is passionate about singing and dancing.",
     "personality": "Kind-hearted, passionate, loves music and dance.",
+    "appearance": null,
+    "mannerisms": null,
+    "speech_style": null,
     "enriched": false,
     "attributes": {
       "strength": 3,
@@ -118,6 +124,9 @@
     "level": 48,
     "description": "Massive crimson scaled dragon, 200 feet long with massive jaws and a long spiked tail.",
     "personality": null,
+    "appearance": null,
+    "mannerisms": null,
+    "speech_style": null,
     "enriched": false,
     "attributes": {
       "strength": 15,
@@ -171,6 +180,9 @@
     "level": 20,
     "description": "Knight known for loyalty, bravery, and honesty.",
     "personality": "Loyal, brave, honest.",
+    "appearance": null,
+    "mannerisms": null,
+    "speech_style": null,
     "enriched": false,
     "attributes": {
       "strength": 15,
@@ -209,5 +221,60 @@
     },
     "status_effects": {},
     "npc_id": "38986452-9f12-44ec-b339-a029f8096546"
+  },
+  "87d64230-7a55-486f-b865-e03491e88b6a": {
+    "name": "Marcus",
+    "age": 32,
+    "species": "Human",
+    "sex": "male",
+    "faction": "Town Guard",
+    "occupation": "Town Guard",
+    "rank": "Captain",
+    "home": null,
+    "current_location": null,
+    "alive": true,
+    "tier": "low",
+    "level": 10,
+    "description": "Human male town guard.",
+    "personality": null,
+    "appearance": null,
+    "mannerisms": null,
+    "speech_style": null,
+    "enriched": false,
+    "attributes": {
+      "strength": 8,
+      "agility": 8,
+      "endurance": 9,
+      "intellect": 6,
+      "attunement": 1,
+      "presence": 6
+    },
+    "skills": {
+      "charisma": 12,
+      "stealth": 11,
+      "perception": 22,
+      "survival": 16,
+      "combat": 39,
+      "magic": 7,
+      "swordsmanship": 42,
+      "shield defense": 43,
+      "patrolling": 22
+    },
+    "resources": {
+      "health": {
+        "current": 230,
+        "maximum": 230
+      },
+      "mana": {
+        "current": 150,
+        "maximum": 150
+      },
+      "stamina": {
+        "current": 225,
+        "maximum": 225
+      }
+    },
+    "status_effects": {},
+    "npc_id": "87d64230-7a55-486f-b865-e03491e88b6a"
   }
 }
