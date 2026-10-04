@@ -27,10 +27,3 @@ def clamp_skill(skill_level: int, character_level: int) -> int:
     maximum = get_skill_cap(character_level)
     return max(0, min(skill_level, maximum))
 
-
-def default_skills() -> dict[str, int]:
-    """Return the core skills for a new character."""
-    return {
-        skill: 0
-        for skill in CORE_SKILLS
-    }

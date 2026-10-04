@@ -1,21 +1,3 @@
-DEFAULT_RESOURCES = {
-    "health": 100,
-    "mana": 100,
-    "stamina": 100,
-}
-
-
-def default_resources() -> dict[str, dict[str, int]]:
-    """Return a fresh set of default character resources."""
-    return {
-        name: {
-            "current": maximum,
-            "maximum": maximum,
-        }
-        for name, maximum in DEFAULT_RESOURCES.items()
-    }
-
-
 def clamp_resource(current: int, maximum: int) -> int:
     """Keep a resource between 0 and its maximum."""
     return max(0, min(current, maximum))

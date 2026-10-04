@@ -3,7 +3,7 @@ from . import schemas
 from .attributes import (
     ATTRIBUTE_NAMES,
     clamp_attribute,
-    default_attributes,
+    
 )
 
 from .levels import (
@@ -16,8 +16,7 @@ from .npc import NPC
 from .npc_manager import create_npc
 
 from .resources import (
-    clamp_resource,
-    default_resources,
+    clamp_resource,  
     apply_damage,
     apply_healing,
 )
@@ -25,8 +24,7 @@ from .resources import (
 from .skills import (
     CORE_SKILLS,
     get_skill_cap,
-    clamp_skill,
-    default_skills,
+    clamp_skill,    
 )
 
 from .stat_bands import StatBand

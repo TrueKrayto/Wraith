@@ -276,5 +276,79 @@
     },
     "status_effects": {},
     "npc_id": "87d64230-7a55-486f-b865-e03491e88b6a"
+  },
+  "1fdcf488-6b60-4b1c-9b90-79ff1a5e83b0": {
+    "name": "Elara",
+    "age": 28,
+    "species": "Human",
+    "sex": "female",
+    "faction": null,
+    "occupation": "Mercenary",
+    "rank": null,
+    "home": null,
+    "current_location": null,
+    "alive": true,
+    "tier": "medium",
+    "level": 12,
+    "description": "Human mercenary, experienced swordswoman and scout.",
+    "personality": null,
+    "appearance": null,
+    "mannerisms": null,
+    "speech_style": null,
+    "enriched": false,
+    "attributes": {
+      "strength": 5,
+      "agility": 11,
+      "endurance": 6,
+      "intellect": 6,
+      "attunement": 2,
+      "presence": 8
+    },
+    "skills": {
+      "charisma": 13,
+      "stealth": 48,
+      "perception": 52,
+      "survival": 41,
+      "combat": 44,
+      "magic": 5,
+      "swordsmanship": 49,
+      "scouting": 52,
+      "tracking": 25
+    },
+    "resources": {
+      "health": {
+        "current": 220,
+        "maximum": 220
+      },
+      "mana": {
+        "current": 180,
+        "maximum": 180
+      },
+      "stamina": {
+        "current": 245,
+        "maximum": 245
+      }
+    },
+    "status_effects": {
+      "poisoned": {
+        "name": "poisoned",
+        "source": null,
+        "effect": "damage",
+        "resource": "health",
+        "amount": 6,
+        "duration": 4,
+        "parent_effect": null
+      },
+      "terrified": {
+        "name": "terrified",
+        "source": null,
+        "effect": "fear",
+        "resource": null,
+        "amount": null,
+        "duration": 3,
+        "parent_effect": null
+      }
+    },
+    "npc_id": "1fdcf488-6b60-4b1c-9b90-79ff1a5e83b0"
   }
 }

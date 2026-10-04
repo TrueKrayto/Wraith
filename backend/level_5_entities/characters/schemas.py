@@ -2,7 +2,6 @@ from typing import Literal
 
 from pydantic import (
     BaseModel,
-    ConfigDict,
     Field,
     model_validator,
 )
@@ -11,103 +10,7 @@ from .skills import CORE_SKILLS
 from .stat_bands import StatBand
 
 
-CharacterRole = Literal["player", "npc"]
 NPCTier = Literal["low", "medium", "high"]
-
-
-# ------------------------------------------------------------------
-# CHARACTER
-# ------------------------------------------------------------------
-
-class CharacterCreate(BaseModel):
-    name: str
-    role: CharacterRole
-    level: int = 1
-
-
-class CharacterUpdate(BaseModel):
-    name: str | None = None
-    role: CharacterRole | None = None
-
-
-class CharacterRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    name: str
-
-    # Keep legacy occupation-style roles readable
-    # until they are reassigned.
-    role: str
-    level: int
-
-
-# ------------------------------------------------------------------
-# SKILLS
-# ------------------------------------------------------------------
-
-class CharacterSkillCreate(BaseModel):
-    name: str
-    level: int = 0
-
-
-class CharacterSkillUpdate(BaseModel):
-    level: int
-
-
-class CharacterSkillRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    character_id: int
-    name: str
-    level: int
-
-
-# ------------------------------------------------------------------
-# ATTRIBUTES
-# ------------------------------------------------------------------
-
-class CharacterAttributeCreate(BaseModel):
-    name: str
-    value: int = 5
-
-
-class CharacterAttributeUpdate(BaseModel):
-    value: int
-
-
-class CharacterAttributeRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    character_id: int
-    name: str
-    value: int
-
-
-# ------------------------------------------------------------------
-# RESOURCES
-# ------------------------------------------------------------------
-
-class CharacterResourceCreate(BaseModel):
-    name: str
-    current: int = 100
-    maximum: int = 100
-
-
-class CharacterResourceUpdate(BaseModel):
-    current: int
-
-
-class CharacterResourceRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    character_id: int
-    name: str
-    current: int
-    maximum: int
 
 
 # ------------------------------------------------------------------
@@ -169,6 +72,7 @@ class NPCCreationData(BaseModel):
 class NPCCreateRequest(BaseModel):
     prompt: str
 
+
 # ------------------------------------------------------------------
 # NPC ENRICHMENT
 # ------------------------------------------------------------------
@@ -197,7 +101,8 @@ class NPCEnrichmentData(BaseModel):
 
     # Normal communication style.
     speech_style: str | None = None
-    
+
+
 # ------------------------------------------------------------------
 # NPC MUTATION
 # ------------------------------------------------------------------
@@ -269,29 +174,16 @@ class NPCMutationData(BaseModel):
     )
 
     # Exact changes to existing attributes.
-    #
-    # Example:
-    # {"strength": 10}
     attribute_updates: dict[str, int] = Field(
         default_factory=dict
     )
 
     # Exact changes to existing skills.
-    #
-    # Example:
-    # {"combat": 20}
     skill_updates: dict[str, int] = Field(
         default_factory=dict
     )
 
     # Updates to character resources.
-    #
-    # Example:
-    # {
-    #     "health": {
-    #         "current": 50
-    #     }
-    # }
     resource_updates: dict[
         str,
         ResourceMutation,

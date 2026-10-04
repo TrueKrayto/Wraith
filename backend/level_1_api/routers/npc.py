@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 from fastapi import APIRouter, HTTPException
 
-from backend.level_2_services.npc import (
+from backend.level_3_services.npc import (
     create_npc_from_prompt,
     mutate_npc_from_prompt,
 )
