@@ -1,184 +1,66 @@
-import json
-
-from backend.entities.characters.temp_store import load_npcs
-from backend.llm.client import (
+from backend.level_4_systems.data import get_npc_repository
+from backend.level_4_systems.llm.clients import (
     get_llm_client,
     get_llm_model,
 )
-from backend.llm.npc_enricher import generate_npc_enrichment
+from backend.level_4_systems.llm.npc import generate_npc_enrichment
 
 
-SCENE_PROMPT = """
-You are narrating a short scene in a freeform fantasy RPG.
+client = get_llm_client()
+model = get_llm_model()
 
-Use the supplied NPC data as the source of truth.
+repository = get_npc_repository()
 
-Describe the NPC briefly, then have them interact with a made-up
-character named Rowan.
-
-Rowan is a travelling stranger who approaches the NPC and says:
-
-"Excuse me. I'm looking for somewhere safe to spend the night.
-Do you know anywhere nearby?"
-
-Write the NPC's response and immediate behaviour.
-
-Keep the scene short:
-- one brief descriptive paragraph
-- a short interaction
-- no more than roughly 150 words
-
-Do not invent major history, relationships, quests, possessions,
-or world lore.
-
-Do not mention stats, levels, skills, or game mechanics directly.
-
-The purpose of this test is to see how the supplied character
-information affects portrayal, behaviour, and dialogue.
-"""
+npc_ids = repository.get_unenriched_ids()
 
 
-def build_base_context(npc) -> dict:
-    """
-    Character context before enrichment.
-    """
-
-    return {
-        "name": npc.name,
-        "age": npc.age,
-        "species": npc.species,
-        "sex": npc.sex,
-
-        "faction": npc.faction,
-        "occupation": npc.occupation,
-        "rank": npc.rank,
-        "home": npc.home,
-
-        "tier": npc.tier,
-        "level": npc.level,
-
-        "description": npc.description,
-        "personality": npc.personality,
-
-        "attributes": npc.attributes,
-        "skills": npc.skills,
-    }
+print("\n=== NPC ENRICHMENT TEST ===")
 
 
-def build_enriched_context(
-    npc,
-    enrichment,
-) -> dict:
-    """
-    Same character context, but with the proposed enrichment included.
-    """
-
-    context = build_base_context(npc)
-
-    context.update(
-        {
-            "description": enrichment.description,
-            "personality": enrichment.personality,
-            "appearance": enrichment.appearance,
-            "mannerisms": enrichment.mannerisms,
-            "speech_style": enrichment.speech_style,
-        }
-    )
-
-    return context
+if not npc_ids:
+    print("\nNo unenriched NPCs found.")
 
 
-def generate_scene(context: dict) -> str:
-    """
-    Generate one short comparison scene using supplied character data.
-    """
+for npc_id in npc_ids:
 
-    client = get_llm_client()
-    model = get_llm_model()
+    npc = repository.get(npc_id)
 
-    prompt = f"""
-{SCENE_PROMPT}
-
-NPC DATA:
-{json.dumps(context, indent=2)}
-
-Write the scene now.
-"""
-
-    response = client.responses.create(
-        model=model,
-        input=prompt,
-    )
-
-    return response.output_text.strip()
-
-
-def print_enrichment(enrichment):
-    print("\n--- GENERATED ENRICHMENT ---")
-    print(f"Description:  {enrichment.description}")
-    print(f"Personality:  {enrichment.personality}")
-    print(f"Appearance:   {enrichment.appearance}")
-    print(f"Mannerisms:   {enrichment.mannerisms}")
-    print(f"Speech Style: {enrichment.speech_style}")
-
-
-npcs = load_npcs()
-
-print("\n=== NPC ENRICHMENT SCENE TEST ===")
-
-for npc in npcs.values():
+    if npc is None:
+        continue
 
     print("\n")
     print("=" * 78)
     print(f"{npc.name} ({npc.npc_id})")
-    print(f"Tier: {npc.tier}")
     print("=" * 78)
 
-    # --------------------------------------------------------------
-    # NON-ENRICHED SCENE
-    # --------------------------------------------------------------
-
-    base_context = build_base_context(npc)
-
     try:
-        print("\n--- SCENE BEFORE ENRICHMENT ---\n")
-
-        before_scene = generate_scene(
-            base_context
-        )
-
-        print(before_scene)
-
-        # ----------------------------------------------------------
-        # GENERATE ENRICHMENT
-        # ----------------------------------------------------------
-
         enrichment = generate_npc_enrichment(
-            npc
+            client=client,
+            model=model,
+            npc=npc,
         )
 
-        print_enrichment(
-            enrichment
-        )
+        print(f"Name:         {npc.name}")
+        print(f"Age:          {npc.age}")
+        print(f"Species:      {npc.species}")
+        print(f"Sex:          {npc.sex}")
+        print(f"Faction:      {npc.faction}")
+        print(f"Occupation:   {npc.occupation}")
+        print(f"Rank:         {npc.rank}")
+        print(f"Home:         {npc.home}")
+        print(f"Location:     {npc.current_location}")
+        print(f"Tier:         {npc.tier}")
+        print(f"Level:        {npc.level}")
 
-        # ----------------------------------------------------------
-        # ENRICHED SCENE
-        # ----------------------------------------------------------
+        print("\n--- ENRICHMENT ---")
 
-        enriched_context = build_enriched_context(
-            npc,
-            enrichment,
-        )
-
-        print("\n--- SCENE AFTER ENRICHMENT ---\n")
-
-        after_scene = generate_scene(
-            enriched_context
-        )
-
-        print(after_scene)
+        print(f"Description:  {enrichment.description}")
+        print(f"Personality:  {enrichment.personality}")
+        print(f"Appearance:   {enrichment.appearance}")
+        print(f"Mannerisms:   {enrichment.mannerisms}")
+        print(f"Speech Style: {enrichment.speech_style}")
 
     except Exception as error:
         print(
-            f"\nERROR testing {npc.name}: {error}"
+            f"\nERROR enriching {npc.name}: {error}"
         )
