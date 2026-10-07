@@ -1,38 +1,26 @@
-from .locations import schemas as location_schemas
+from . import schemas
+from .enrichment import apply_location_enrichment
 
-from .characters import (
-    NPC,
-    create_npc,
-    apply_npc_enrichment,
-    apply_npc_mutation,
-    schemas,
-)
-
-from .locations import (
-    Location,
+from .creation import (
     create_building_locations,
     create_city_locations,
     create_complex_locations,
     create_simple_location,
     create_town_locations,
     create_village_locations,
-    apply_location_enrichment,
 )
+
+from .location import Location
 
 
 __all__ = [
-    "NPC",
-    "create_npc",
-    "apply_npc_enrichment",
-    "apply_npc_mutation",
-    "schemas",
     "Location",
+    "schemas",
     "create_building_locations",
     "create_city_locations",
     "create_complex_locations",
     "create_simple_location",
     "create_town_locations",
     "create_village_locations",
-    "location_schemas",
     "apply_location_enrichment",
 ]
