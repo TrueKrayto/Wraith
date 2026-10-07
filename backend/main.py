@@ -1,11 +1,30 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.level_1_api import npc_router
+from backend.level_2_workers import WorkerManager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    worker_manager = WorkerManager()
+
+    app.state.worker_manager = worker_manager
+
+    worker_manager.start()
+
+    try:
+        yield
+
+    finally:
+        worker_manager.stop()
 
 
 app = FastAPI(
     title="Wraith API",
+    lifespan=lifespan,
 )
 
 

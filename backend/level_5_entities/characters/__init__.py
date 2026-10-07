@@ -14,6 +14,7 @@ from .levels import (
 
 from .npc import NPC
 from .npc_manager import create_npc
+from .enrichment import apply_npc_enrichment
 
 from .resources import (
     clamp_resource,  

@@ -1,8 +1,12 @@
-from . import npc
-from . import narrative
+from .npc import (
+    create_npc_from_prompt,
+    enrich_npc,
+    mutate_npc_from_prompt,
+)
 
 
 __all__ = [
-    "npc",
-    "narrative",
+    "create_npc_from_prompt",
+    "enrich_npc",
+    "mutate_npc_from_prompt",
 ]
