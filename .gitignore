@@ -17,6 +17,10 @@ screenshots/
 *.sqlite
 *.sqlite3
 
+# Temporary development stores
+backend/level_4_systems/data/temp_locations.json
+backend/level_4_systems/data/temp_npcs.json
+
 # Node / frontend
 node_modules/
 dist/
