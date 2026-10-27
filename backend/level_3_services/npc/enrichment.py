@@ -1,10 +1,13 @@
 from backend.level_4_systems import (
+    LLMRole,
     generate_npc_enrichment,
-    get_llm_client,
-    get_llm_model,
+    get_llm_client_manager,
     get_npc_repository,
 )
-from backend.level_5_entities import apply_npc_enrichment
+
+from backend.level_5_entities import (
+    apply_npc_enrichment,
+)
 
 
 def enrich_npc(
@@ -29,14 +32,29 @@ def enrich_npc(
     if npc.enriched:
         return npc
 
-    client = get_llm_client()
-    model = get_llm_model()
+    # --------------------------------------------------------------
+    # LLM ROUTING
+    # --------------------------------------------------------------
+
+    llm_manager = get_llm_client_manager()
+
+    enrichment_llm = llm_manager.get(
+        LLMRole.NPC_ENRICHMENT
+    )
+
+    # --------------------------------------------------------------
+    # GENERATION
+    # --------------------------------------------------------------
 
     enrichment = generate_npc_enrichment(
-        client=client,
-        model=model,
+        client=enrichment_llm.client,
+        model=enrichment_llm.model,
         npc=npc,
     )
+
+    # --------------------------------------------------------------
+    # APPLY + SAVE
+    # --------------------------------------------------------------
 
     apply_npc_enrichment(
         npc=npc,

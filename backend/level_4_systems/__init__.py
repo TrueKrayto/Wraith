@@ -19,6 +19,10 @@ from .llm import (
     generate_npc_enrichment,
     generate_npc_mutation,
     generate_location_enrichment,
+    LLMClientManager,
+    LLMClientSelection,
+    LLMRole,
+    get_llm_client_manager,
 )
 
 
@@ -40,4 +44,8 @@ __all__ = [
     "generate_npc_data",
     "generate_npc_enrichment",
     "generate_npc_mutation",
+    "LLMClientManager",
+    "LLMClientSelection",
+    "LLMRole",
+    "get_llm_client_manager",
 ]

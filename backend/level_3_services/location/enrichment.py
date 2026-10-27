@@ -1,7 +1,7 @@
 from backend.level_4_systems import (
+    LLMRole,
     generate_location_enrichment,
-    get_llm_client,
-    get_llm_model,
+    get_llm_client_manager,
     get_location_repository,
 )
 
@@ -47,15 +47,22 @@ def enrich_location(
     )
 
     # --------------------------------------------------------------
+    # LLM ROUTING
+    # --------------------------------------------------------------
+
+    llm_manager = get_llm_client_manager()
+
+    enrichment_llm = llm_manager.get(
+        LLMRole.LOCATION_ENRICHMENT
+    )
+
+    # --------------------------------------------------------------
     # GENERATION
     # --------------------------------------------------------------
 
-    client = get_llm_client()
-    model = get_llm_model()
-
     enrichment = generate_location_enrichment(
-        client=client,
-        model=model,
+        client=enrichment_llm.client,
+        model=enrichment_llm.model,
         location=location,
         parent=parent,
         children=children,

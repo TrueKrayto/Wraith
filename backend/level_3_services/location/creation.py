@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
 from backend.level_4_systems import (
+    LLMRole,
     generate_location_data,
-    get_llm_client,
-    get_llm_model,
+    get_llm_client_manager,
     get_location_repository,
     resolve_location_creation_shape,
 )
@@ -85,6 +85,7 @@ def create_location_from_prompt(
     """
 
     repository = get_location_repository()
+    llm_manager = get_llm_client_manager()
 
     # --------------------------------------------------------------
     # EXISTING ROOT
@@ -112,21 +113,18 @@ def create_location_from_prompt(
             )
 
     # --------------------------------------------------------------
-    # LLM
-    # --------------------------------------------------------------
-
-    client = get_llm_client()
-    model = get_llm_model()
-
-    # --------------------------------------------------------------
     # CREATION SHAPE
     # --------------------------------------------------------------
 
     if creation_shape is None:
 
+        shape_llm = llm_manager.get(
+            LLMRole.LOCATION_SHAPE
+        )
+
         shape = resolve_location_creation_shape(
-            client=client,
-            model=model,
+            client=shape_llm.client,
+            model=shape_llm.model,
             location_prompt=location_prompt,
             location_type=(
                 root.location_type
@@ -197,9 +195,13 @@ LOCATION CREATION REQUEST:
     # LOCATION GENERATION
     # --------------------------------------------------------------
 
+    creation_llm = llm_manager.get(
+        LLMRole.LOCATION_CREATION
+    )
+
     payload = generate_location_data(
-        client=client,
-        model=model,
+        client=creation_llm.client,
+        model=creation_llm.model,
         creation_shape=shape,
         location_prompt=prompt,
     )

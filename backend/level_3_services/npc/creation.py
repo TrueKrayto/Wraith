@@ -1,23 +1,28 @@
-from backend.level_4_systems.data import get_npc_repository
-from backend.level_4_systems.llm.clients import (
-    get_llm_client,
-    get_llm_model,
+from backend.level_4_systems import (
+    LLMRole,
+    generate_npc_data,
+    get_llm_client_manager,
+    get_npc_repository,
 )
-from backend.level_4_systems.llm.npc import generate_npc_data
 from backend.level_5_entities.characters import create_npc
 
 
 def create_npc_from_prompt(prompt: str):
-    client = get_llm_client()
-    model = get_llm_model()
+    llm_manager = get_llm_client_manager()
+
+    creation_llm = llm_manager.get(
+        LLMRole.NPC_CREATION
+    )
 
     payload = generate_npc_data(
-        client=client,
-        model=model,
+        client=creation_llm.client,
+        model=creation_llm.model,
         npc_prompt=prompt,
     )
 
-    npc = create_npc(payload=payload)
+    npc = create_npc(
+        payload=payload
+    )
 
     repository = get_npc_repository()
     repository.save(npc)

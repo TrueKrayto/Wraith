@@ -1,66 +1,155 @@
-from backend.level_4_systems.data import get_npc_repository
-from backend.level_4_systems.llm.clients import (
-    get_llm_client,
-    get_llm_model,
+import time
+
+from openai import RateLimitError
+
+from backend.level_3_services import (
+    enrich_npc,
 )
-from backend.level_4_systems.llm.npc import generate_npc_enrichment
+
+from backend.level_4_systems import (
+    get_npc_repository,
+)
+
+from backend.level_0_dev.tests.characters.character_sheet_showcase import (
+    print_character_sheet,
+)
 
 
-client = get_llm_client()
-model = get_llm_model()
+RATE_LIMIT_WAIT_SECONDS = 5
+
+
+# ==================================================================
+# TEST START
+# ==================================================================
+
+print()
+print("=" * 78)
+print("WRAITH NPC ENRICHMENT TEST")
+print("=" * 78)
 
 repository = get_npc_repository()
 
 npc_ids = repository.get_unenriched_ids()
 
+total = len(npc_ids)
+successful = 0
+failed = 0
 
-print("\n=== NPC ENRICHMENT TEST ===")
+print()
+print(f"Unenriched NPCs found: {total}")
 
 
-if not npc_ids:
-    print("\nNo unenriched NPCs found.")
+# ==================================================================
+# ENRICH ALL PENDING NPCS
+# ==================================================================
 
-
-for npc_id in npc_ids:
+for index, npc_id in enumerate(
+    npc_ids,
+    start=1,
+):
 
     npc = repository.get(npc_id)
 
     if npc is None:
+        print(
+            f"\n[{index}/{total}] "
+            f"NPC missing: {npc_id}"
+        )
+
+        failed += 1
         continue
 
-    print("\n")
+    print()
     print("=" * 78)
-    print(f"{npc.name} ({npc.npc_id})")
+    print(
+        f"[{index}/{total}] "
+        f"ENRICHING {npc.name.upper()}"
+    )
     print("=" * 78)
 
-    try:
-        enrichment = generate_npc_enrichment(
-            client=client,
-            model=model,
-            npc=npc,
+    # --------------------------------------------------------------
+    # ENRICHMENT SERVICE
+    # --------------------------------------------------------------
+
+    while True:
+
+        try:
+            enriched_npc = enrich_npc(
+                npc_id
+            )
+
+            if enriched_npc is None:
+                raise RuntimeError(
+                    f"NPC not found during enrichment: {npc_id}"
+                )
+
+            successful += 1
+
+            print(
+                f"\nFinished enriching: "
+                f"{enriched_npc.name}"
+            )
+
+            break
+
+        except RateLimitError:
+
+            print(
+                f"\nRate limit reached. "
+                f"Waiting {RATE_LIMIT_WAIT_SECONDS} seconds..."
+            )
+
+            time.sleep(
+                RATE_LIMIT_WAIT_SECONDS
+            )
+
+            print("Retrying...")
+
+        except Exception as error:
+
+            failed += 1
+
+            print(
+                f"\nERROR enriching {npc.name}: "
+                f"{error}"
+            )
+
+            enriched_npc = None
+            break
+
+    # --------------------------------------------------------------
+    # CHARACTER SHEET
+    # --------------------------------------------------------------
+
+    if enriched_npc is not None:
+
+        print()
+        print_character_sheet(
+            enriched_npc.npc_id
         )
 
-        print(f"Name:         {npc.name}")
-        print(f"Age:          {npc.age}")
-        print(f"Species:      {npc.species}")
-        print(f"Sex:          {npc.sex}")
-        print(f"Faction:      {npc.faction}")
-        print(f"Occupation:   {npc.occupation}")
-        print(f"Rank:         {npc.rank}")
-        print(f"Home:         {npc.home}")
-        print(f"Location:     {npc.current_location}")
-        print(f"Tier:         {npc.tier}")
-        print(f"Level:        {npc.level}")
 
-        print("\n--- ENRICHMENT ---")
+# ==================================================================
+# FINAL SUMMARY
+# ==================================================================
 
-        print(f"Description:  {enrichment.description}")
-        print(f"Personality:  {enrichment.personality}")
-        print(f"Appearance:   {enrichment.appearance}")
-        print(f"Mannerisms:   {enrichment.mannerisms}")
-        print(f"Speech Style: {enrichment.speech_style}")
+print()
+print()
+print("=" * 78)
+print("NPC ENRICHMENT SUMMARY")
+print("=" * 78)
 
-    except Exception as error:
-        print(
-            f"\nERROR enriching {npc.name}: {error}"
-        )
+print(f"NPCs found:       {total}")
+print(f"Successfully enriched: {successful}")
+print(f"Failed:           {failed}")
+
+remaining = repository.get_unenriched_ids()
+
+print(
+    f"Still unenriched: {len(remaining)}"
+)
+
+print()
+print("=" * 78)
+print("TEST COMPLETE")
+print("=" * 78)
