@@ -19,6 +19,14 @@ from .locations import (
     apply_location_enrichment,
 )
 
+from .scenes import (
+    PreparedTurn,
+    Scene,
+    ScenePhase,
+    IntentAction,
+    IntentResult,
+
+)
 
 __all__ = [
     "NPC",
@@ -35,4 +43,9 @@ __all__ = [
     "create_village_locations",
     "location_schemas",
     "apply_location_enrichment",
+    "PreparedTurn",
+    "Scene",
+    "ScenePhase",
+    "IntentAction",
+    "IntentResult",
 ]

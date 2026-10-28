@@ -23,6 +23,9 @@ from .LLMClientManager import (
     get_llm_client_manager,
 )
 
+from .scene import (
+    extract_player_intent,
+)
 
 __all__ = [
     "get_llm_client",
@@ -38,4 +41,5 @@ __all__ = [
     "LLMClientSelection",
     "LLMRole",
     "get_llm_client_manager",
+    "extract_player_intent",
 ]

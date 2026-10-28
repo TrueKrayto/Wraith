@@ -8,6 +8,8 @@ from .combat import resolve_attack
 
 from .damage import calculate_damage
 
+from .scene_manager import SceneManager
+
 from .dice import (
     roll_d4,
     roll_d6,
