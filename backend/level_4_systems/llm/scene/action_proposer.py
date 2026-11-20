@@ -3,18 +3,18 @@ import json
 from pydantic import ValidationError
 
 from backend.level_5_entities import (
-    IntentResult,
+    ActionProposal,
     Location,
     NPC,
 )
 
 
 SYSTEM_PROMPT = """
-You are the player intent interpreter for Wraith,
+You are the Action Proposer for Wraith,
 a freeform fantasy RPG.
 
 Your job is to identify what the player is ATTEMPTING
-to do and convert it into structured JSON.
+to do and convert it into a structured Action Proposal.
 
 You do not resolve actions.
 You do not decide whether actions succeed.
@@ -356,40 +356,207 @@ into unconditional commands for the resolver.
 
 
 # ------------------------------------------------------------
-# TARGET REFERENCES
+# TARGET IDENTIFICATION
 # ------------------------------------------------------------
 
-Use target_reference for the person, creature,
-object, or entity the player is acting upon.
+Identify the intended target of each attempted action using
+player input and supplied scene context.
 
-Use destination_reference for an intended destination.
+Preserve the player's target wording in target_reference.
+For NPCs, copy ONLY an exact npc_id from CURRENT SCENE.
+Never invent or alter canonical IDs.
 
-Preserve the intended target.
+A plausible target is not proof that an action can succeed.
+Target identification does not resolve mechanics.
 
-Resolve ordinary pronouns when the supplied
-scene context makes their meaning unambiguous.
+
+# ------------------------------------------------------------
+# CANONICAL NPCS AND NAME MATCHING
+# ------------------------------------------------------------
+
+When a player explicitly identifies a present NPC by name,
+set target_type: "npc", target_id to its exact npc_id,
+and target_resolution: "explicit".
+
+A full personal name takes priority over a surname or first
+name shared by another NPC.
 
 Example:
 
-Scene contains Silversong.
+CURRENT SCENE contains John Brown, but not Robert Brown.
+Player: "I grab Robert Brown by the collar."
+
+The target is NOT John Brown. Do not substitute a person who
+only shares a surname. Set target_id: null and
+ target_resolution: "unresolved".
+
+A name mismatch is NOT a contextual match merely because
+part of the name resembles a known NPC's name.
+
+For a single first name such as "John", if both John Smith
+and John Brown are present, select the most plausible one.
+If no distinguishing context exists, choose the first
+matching NPC in the supplied scene order.
+Use target_resolution: "default" for that fallback.
+
+Never select an unrelated NPC to avoid returning null.
+
+
+# ------------------------------------------------------------
+# CONTEXTUAL IDENTIFICATION
+# ------------------------------------------------------------
+
+Pronouns, references from earlier actions in the SAME input,
+and uniquely matching descriptions may identify an NPC.
+Use target_resolution: "contextual" when the identification
+depends on this context rather than explicit identification.
+
+Example:
+"I approach Jane Smith and ask her to help."
+
+Both actions target Jane Smith's canonical npc_id.
+The second action can use target_resolution: "contextual".
+
+Where a player uses a name imprecisely, correct it ONLY if
+available context strongly establishes their intended NPC.
+Similarity of names or surnames alone is insufficient.
+Do not claim combat history or relationships that were not
+supplied in the CURRENT SCENE or player input.
+
+
+If multiple NPCs match a generic reference, consider
+all information contained in the player's action.
+
+Use established interaction partners, occupations,
+ranks, and other supplied context to distinguish them.
+
+Do not select a candidate whose known attributes
+contradict the intended interaction.
+
+Example:
 
 Player:
-"I approach Silversong and greet her."
+"I ask the guard to fetch his captain."
 
-Both actions may use:
+If a Guard Captain and ordinary Guards are present,
+prefer an ordinary Guard rather than the Captain.
 
-target_reference: Silversong
+Only select the first matching NPC in supplied scene
+order when no relevant context distinguishes candidates.
 
-Do not invent canonical entity IDs.
+Use target_resolution: "default" for such selections.
 
-The supplied scene context is for understanding
-references, not for inventing additional actions.
+Do not reject a generic action because several NPCs match.
 
-If a reference is genuinely ambiguous or cannot
-be identified from the available context, include
-it in unresolved_references.
 
-Do not invent missing characters, places or objects.
+
+# ------------------------------------------------------------
+# MOVEMENT TOWARDS NPCS
+# ------------------------------------------------------------
+
+When the player moves, approaches, walks or turns TOWARDS an
+NPC who can be identified in CURRENT SCENE, preserve the NPC
+as the canonical action target, not solely as an unverified
+destination string.
+
+Example:
+Player: "I walk over to Mary Jones."
+
+Set:
+action_type: "movement"
+intent: "approach"
+target_reference: "Mary Jones"
+target_type: "npc"
+target_id: Mary's exact npc_id from CURRENT SCENE
+target_resolution: "explicit"
+destination_reference: "Mary Jones"
+
+Do NOT set target_id to null merely because the action is
+movement. destination_reference can coexist with target_id.
+
+For movement towards an unregistered place or feature, keep
+destination_reference and an appropriate descriptive target.
+Never invent a destination or entity ID.
+
+
+# ------------------------------------------------------------
+# UNRESOLVED NPC TARGETS
+# ------------------------------------------------------------
+
+If a named NPC cannot be identified and no strongly supported
+contextual correction is available, preserve the attempted
+action with:
+
+target_type: "npc"
+target_id: null
+target_resolution: "unresolved"
+
+Include the reference in unresolved_references.
+Do not discard the action, substitute someone else, or
+reject the entire proposal.
+
+Example:
+Player is alone: "I attack Marcus."
+
+Preserve the attack with a null target ID. The resolver
+later determines the consequence of the attempt.
+
+
+# ------------------------------------------------------------
+# DESCRIPTIVE OBJECTS AND LOCATIONS
+# ------------------------------------------------------------
+
+Ordinary objects and environmental features need not have
+registered canonical IDs: forks, cups, chairs, tables, doors,
+curtains, rocks, walls, windows and other common features.
+
+Example:
+Player: "I pick up a fork."
+
+target_reference: "fork"
+target_type: "object"
+target_id: null
+target_resolution: "descriptive"
+
+Do NOT mark ordinary unregistered objects unresolved merely
+because they lack IDs. Do not invent IDs.
+
+If a registered item or object appears in supplied context
+and its identity is clear, use that canonical ID.
+
+A location has a canonical ID only when supplied in context.
+Preserve a textual destination when it has no registered ID.
+
+Do not assume that an unregistered object does not exist.
+The resolver determines existence and reachability.
+
+
+# ------------------------------------------------------------
+# NO TARGET AND IMPOSSIBLE ATTEMPTS
+# ------------------------------------------------------------
+
+Some actions have no external target. Example: "I laugh."
+Use null for target_reference, target_type, target_id,
+and target_resolution. Do not invent targets.
+
+Do not reject physically implausible attempts.
+"I lift the castle and throw it" remains attempted actions.
+Whether the player has the necessary abilities is not
+part of Action Proposal.
+
+
+# ------------------------------------------------------------
+# TARGET IDENTIFICATION IS NOT RESOLUTION
+# ------------------------------------------------------------
+
+Do not determine:
+- existence or physical reachability of descriptive objects
+- whether the attempt can succeed
+- damage, resource costs or difficulty
+- NPC reactions or actions
+- new world facts or state mutations
+
+These decisions belong to TurnResolver.
 
 
 # ------------------------------------------------------------
@@ -506,7 +673,7 @@ def _build_scene_context(
     npcs: tuple[NPC, ...] | list[NPC],
 ) -> dict:
     """
-    Build lightweight scene context for intent extraction.
+    Build lightweight scene context for action proposal generation.
 
     Full character profiles and location descriptions
     are deliberately excluded to reduce token usage.
@@ -531,14 +698,14 @@ def _build_scene_context(
     }
 
 
-def extract_player_intent(
+def generate_action_proposal(
     *,
     client,
     model: str,
     player_input: str,
     location: Location,
     npcs: tuple[NPC, ...] | list[NPC],
-) -> IntentResult:
+) -> ActionProposal:
     """
     Interpret raw player input into structured intentions.
 
@@ -572,7 +739,7 @@ def extract_player_intent(
     # STRUCTURED OUTPUT SCHEMA
     # --------------------------------------------------------------
 
-    schema = IntentResult.model_json_schema()
+    schema = ActionProposal.model_json_schema()
 
     # --------------------------------------------------------------
     # LLM INTERPRETATION
@@ -602,7 +769,7 @@ valid earlier action positions.
 CURRENT SCENE:
 {json.dumps(scene_context, indent=2)}
 
-INTENT RESULT JSON SCHEMA:
+ACTION PROPOSAL JSON SCHEMA:
 {json.dumps(schema, indent=2)}
 
 PLAYER INPUT:
@@ -623,19 +790,19 @@ Return valid JSON only.
 
         try:
 
-            intent_result = (
-                IntentResult.model_validate_json(
+            proposal = (
+                ActionProposal.model_validate_json(
                     response.output_text.strip()
                 )
             )
 
-            return intent_result
+            return proposal
 
         except ValidationError as error:
 
             previous_error = str(error)
 
     raise ValueError(
-        "LLM could not generate valid player intent: "
+        "LLM could not generate valid action proposal: "
         f"{previous_error}"
     )

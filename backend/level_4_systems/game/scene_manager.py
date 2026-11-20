@@ -1,10 +1,13 @@
+
 from uuid import uuid4
 
 from backend.level_5_entities import (
-    IntentResult,
+    ActionProposal,
     PreparedTurn,
     Scene,
 )
+
+from .target_validator import validate_action_targets
 
 
 class SceneManager:
@@ -17,13 +20,14 @@ class SceneManager:
     - NPC repositories
     - Location repositories
     - LLM clients
-    - Intent extraction implementations
+    - Action proposal implementations
 
     Responsibilities:
     - manage active scenes
     - load relevant world context
     - receive player input
-    - request intent extraction
+    - request action proposals
+    - validate proposed targets
     - prepare structured turns
     - track turn lifecycle
 
@@ -33,11 +37,11 @@ class SceneManager:
     def __init__(
         self,
         *,
-        intent_extractor,
+        action_proposer,
         location_repository,
         npc_repository,
     ):
-        self._intent_extractor = intent_extractor
+        self._action_proposer = action_proposer
 
         self._location_repository = (
             location_repository
@@ -121,12 +125,13 @@ class SceneManager:
         player_input: str,
     ) -> PreparedTurn:
         """
-        Receive raw player input and extract intentions.
+        Receive raw player input, generate an action
+        proposal, and validate its target identities.
 
-        This does not perform mechanical resolution.
+        No mechanical resolution occurs here.
 
-        If intent extraction fails, the scene remains
-        ready and the player may retry.
+        If proposal generation or validation raises
+        an exception, the scene remains ready.
         """
 
         scene = self.get_scene(
@@ -178,19 +183,49 @@ class SceneManager:
 
             npcs.append(npc)
 
+        scene_npcs = tuple(npcs)
+
         # ----------------------------------------------------------
-        # EXTRACT PLAYER INTENT
+        # GENERATE ACTION PROPOSAL
         # ----------------------------------------------------------
 
-        intent = self._intent_extractor(
+        proposal = self._action_proposer(
             player_input=player_input,
             location=location,
-            npcs=tuple(npcs),
+            npcs=scene_npcs,
         )
 
-        if not isinstance(intent, IntentResult):
+        if not isinstance(
+            proposal,
+            ActionProposal,
+        ):
             raise TypeError(
-                "Intent extractor must return IntentResult."
+                "Action proposer must return ActionProposal."
+            )
+
+        # ----------------------------------------------------------
+        # VALIDATE PROPOSED TARGETS
+        # ----------------------------------------------------------
+
+        proposal = validate_action_targets(
+            proposal=proposal,
+            location=location,
+            npcs=scene_npcs,
+        )
+
+        # The validator must return a valid proposal,
+        # including actions with descriptive or
+        # unresolved targets.
+        #
+        # Missing canonical IDs are not automatically
+        # errors or reasons to discard actions.
+
+        if not isinstance(
+            proposal,
+            ActionProposal,
+        ):
+            raise TypeError(
+                "Target validator must return ActionProposal."
             )
 
         # ----------------------------------------------------------
@@ -207,11 +242,11 @@ class SceneManager:
             player_character_id=scene.player_character_id,
             location_id=scene.location_id,
             npc_ids=tuple(scene.npc_ids),
-            intent=intent,
+            proposal=proposal,
         )
 
-        # Only mark the turn as pending after extraction
-        # has completed successfully.
+        # Only mark the turn as pending after proposal
+        # generation and target validation succeed.
 
         scene.pending_turn_id = turn_id
         scene.phase = "awaiting_resolution"

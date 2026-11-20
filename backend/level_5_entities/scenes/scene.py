@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Literal
 from uuid import uuid4
 
-from .intent import IntentResult
+from .action_proposal import ActionProposal
 
 
 ScenePhase = Literal[
@@ -41,10 +41,12 @@ class Scene:
 @dataclass(frozen=True)
 class PreparedTurn:
     """
-    Player input and extracted intentions.
+    Player input and its generated action proposal.
 
     Contains references to scene entities,
     never the entities themselves.
+
+    No mechanical resolution has occurred.
     """
 
     turn_id: str
@@ -57,4 +59,4 @@ class PreparedTurn:
     location_id: str
     npc_ids: tuple[str, ...]
 
-    intent: IntentResult
+    proposal: ActionProposal

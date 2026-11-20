@@ -25,7 +25,7 @@ class LLMRole(StrEnum):
     LOCATION_CREATION = "location_creation"
     LOCATION_ENRICHMENT = "location_enrichment"
     
-    INTENT_EXTRACTION = "intent_extraction"
+    ACTION_PROPOSAL = "action_proposal"
 
 @dataclass(frozen=True)
 class LLMClientSelection:

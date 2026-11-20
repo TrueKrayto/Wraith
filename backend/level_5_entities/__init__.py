@@ -23,9 +23,8 @@ from .scenes import (
     PreparedTurn,
     Scene,
     ScenePhase,
-    IntentAction,
-    IntentResult,
-
+    ProposedAction,
+    ActionProposal,
 )
 
 __all__ = [
@@ -46,6 +45,6 @@ __all__ = [
     "PreparedTurn",
     "Scene",
     "ScenePhase",
-    "IntentAction",
-    "IntentResult",
+    "ProposedAction",
+    "ActionProposal",
 ]

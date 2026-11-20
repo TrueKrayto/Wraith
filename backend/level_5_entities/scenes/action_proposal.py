@@ -1,3 +1,6 @@
+
+from typing import Literal
+
 from pydantic import (
     BaseModel,
     Field,
@@ -6,17 +9,19 @@ from pydantic import (
 
 
 # ------------------------------------------------------------------
-# INDIVIDUAL PLAYER ACTION
+# INDIVIDUAL PROPOSED ACTION
 # ------------------------------------------------------------------
 
-class IntentAction(BaseModel):
+class ProposedAction(BaseModel):
     """
-    One action the player intends to perform.
+    One action the player proposes to perform.
 
     Represents an attempt, never a resolved outcome.
 
     Actions may be conditional or dependent on the
     successful completion of earlier actions.
+
+    Targets may be identified using canonical IDs.
     """
 
     # Broad category:
@@ -26,11 +31,80 @@ class IntentAction(BaseModel):
     # What the player is attempting.
     intent: str
 
-    # Entity, person, object, or subject being targeted.
+    # --------------------------------------------------------------
+    # TARGET IDENTIFICATION
+    # --------------------------------------------------------------
+
+    # Original reference used to identify the target.
+    #
+    # Example:
+    # "I attack the guard beside the doorway."
+    #
+    # target_reference = "guard beside the doorway"
+
     target_reference: str | None = None
+
+    # Canonical ID of the intended target.
+    #
+    # NPC targets must use an existing npc_id.
+    #
+    # The proposer may only select IDs supplied
+    # in its scene context.
+    #
+    # The backend must verify the ID before
+    # passing the action to mechanical resolution.
+    #
+    # None means no canonical target was identified
+    # or the action does not require one.
+
+    target_id: str | None = None
+
+    # Category of the identified target.
+    #
+    # Examples:
+    # npc, location, object, item
+    #
+    # None when no canonical type is established.
+
+    target_type: str | None = None
+
+    # How the target was identified.
+    #
+    # explicit:
+    # The player's reference identifies one entity.
+    #
+    # contextual:
+    # Scene information or conversational context
+    # identifies the intended entity.
+    #
+    # default:
+    # Multiple plausible targets exist and a
+    # reasonable default has been selected.
+    #
+    # unresolved:
+    # No suitable canonical target was identified.
+    #
+    # None:
+    # The action requires no target identification.
+
+    target_resolution: Literal[
+    "explicit",
+    "contextual",
+    "default",
+    "descriptive",
+    "unresolved",
+    ] | None = None
+
+    # --------------------------------------------------------------
+    # DESTINATION
+    # --------------------------------------------------------------
 
     # Intended destination, when applicable.
     destination_reference: str | None = None
+
+    # --------------------------------------------------------------
+    # COMMUNICATION AND ORIGINAL INPUT
+    # --------------------------------------------------------------
 
     # Exact spoken words, if supplied.
     dialogue: str | None = None
@@ -65,7 +139,7 @@ class IntentAction(BaseModel):
     #
     # Example:
     # 1. Attempt to unlock door
-    # 2. Enter door, if unlocking succeeds
+    # 2. Open door if unlocking succeeds
     #
     # Action 2:
     # depends_on = [1]
@@ -78,14 +152,17 @@ class IntentAction(BaseModel):
 
 
 # ------------------------------------------------------------------
-# COMPLETE INTENT RESULT
+# COMPLETE ACTION PROPOSAL
 # ------------------------------------------------------------------
 
-class IntentResult(BaseModel):
+class ActionProposal(BaseModel):
     """
-    Structured interpretation of player input.
+    Structured proposal generated from player input.
 
     Actions preserve their original order.
+
+    Canonical target IDs are proposals and require
+    deterministic validation before use.
 
     This structure contains no:
     - success/failure outcomes
@@ -95,12 +172,16 @@ class IntentResult(BaseModel):
     - NPC responses
     """
 
-    actions: list[IntentAction] = Field(
+    actions: list[ProposedAction] = Field(
         default_factory=list
     )
 
-    # References the extractor could not
+    # References the proposer could not
     # confidently identify.
+    #
+    # These do not automatically invalidate the
+    # player's entire action proposal.
+
     unresolved_references: list[str] = Field(
         default_factory=list
     )

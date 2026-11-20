@@ -4,15 +4,16 @@ from .scene import (
     ScenePhase,
 )
 
-from .intent import (
-    IntentAction,
-    IntentResult,
+from .action_proposal import (
+    ProposedAction,
+    ActionProposal,
 )
+
 
 __all__ = [
     "PreparedTurn",
     "Scene",
     "ScenePhase",
-    "IntentAction",
-    "IntentResult",
+    "ProposedAction",
+    "ActionProposal",
 ]

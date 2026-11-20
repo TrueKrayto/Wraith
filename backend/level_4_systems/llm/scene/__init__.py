@@ -1,8 +1,5 @@
-from .intent_extractor import (
-    extract_player_intent,
-)
-
+from .action_proposer import generate_action_proposal
 
 __all__ = [
-    "extract_player_intent",
+    "generate_action_proposal",
 ]

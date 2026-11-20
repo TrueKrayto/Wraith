@@ -9,6 +9,10 @@ from .location import (
     create_location_from_prompt,
 )
 
+from .scene import (
+    create_scene_manager,
+)
+
 
 __all__ = [
     "create_npc_from_prompt",
@@ -16,4 +20,5 @@ __all__ = [
     "mutate_npc_from_prompt",
     "LocationCreationResult",
     "create_location_from_prompt",
+    "create_scene_manager",
 ]

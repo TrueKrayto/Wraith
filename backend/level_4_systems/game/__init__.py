@@ -10,6 +10,8 @@ from .damage import calculate_damage
 
 from .scene_manager import SceneManager
 
+from .target_validator import validate_action_targets
+
 from .dice import (
     roll_d4,
     roll_d6,

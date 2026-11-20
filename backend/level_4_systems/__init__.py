@@ -23,7 +23,7 @@ from .llm import (
     LLMClientSelection,
     LLMRole,
     get_llm_client_manager,
-    extract_player_intent,
+    generate_action_proposal,
 )
 
 from .game import SceneManager
@@ -52,5 +52,5 @@ __all__ = [
     "LLMRole",
     "get_llm_client_manager",
     "SceneManager",
-    "extract_player_intent",
+    "generate_action_proposal",
 ]
